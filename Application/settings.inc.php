@@ -28,6 +28,11 @@ const WEB_PAGES = array(
         "file_name" => "UserManagementController.class.php",
         "class_name" => "UserManagementController",
         "title" => "Správa uživatele"
+    ),
+    "articles" => array(
+        "file_name" => "ArticlesController.class.php",
+        "class_name" => "ArticlesController",
+        "title" => "Články"
     )
 );
 
@@ -60,3 +65,7 @@ define("TABLE_RECENZE", "mjakubas_recenze");
 
 /** identifikator prihlaseneho uzivatele */
 define("SESSION_USER_KEY", "session_user_key");
+
+// cesty
+/** cesta k adresari se clanky */
+define("ARTICLES_PATH", "/KIV_WEB_SEMESTRALKA/Uploads/Articles/");

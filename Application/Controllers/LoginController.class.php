@@ -29,15 +29,16 @@ class LoginController implements IController
         // nazev
         $tplData["title"] = $pageTitle;
 
-        if (isset($_POST["action"])) {
-            // prihlaseni
-            $tplData["login"] = $this->checkIfLogin();
-        }
         // get protoze je to obsazeno v linku v PageTemplate (optimalni?)
         if (isset($_GET["action"])) {
             // odhlaseni
             $tplData["login"] = $this->checkIfLogout();
         }
+        if (isset($_POST["action"])) {
+            // prihlaseni
+            $tplData["login"] = $this->checkIfLogin();
+        }
+
         $tplData["isLogged"] = $this->userDB->isUserLoggedIn();
 
         ob_start();

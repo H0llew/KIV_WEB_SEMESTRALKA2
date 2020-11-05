@@ -24,14 +24,39 @@ class RegistrationController implements IController
      */
     public function show(string $pageTitle): string
     {
-        if (isset($_POST["action"])) {
-            echo "aga";
-            $this->checkIfRegister();
+        global $tplData;
+        $tplData = [];
+        // nazev
+        $tplData["title"] = $pageTitle;
+
+        if (isset($_POST["action"]) && $_POST["action"] == "register") {
+            $tplData["email_used"] = $this->checkIfEmailUsed();
+            if ($tplData["email_used"])
+                $tplData["registration"] = $this->checkIfRegister();
         }
+        $tplData["isLogged"] = $this->userDB->isUserLoggedIn();
 
         ob_start();
         require(DIR_VIEWS . "/RegistrationTemplate.tpl.php");
+
+        unset($tplData["email_used"]);
+        unset($tplData["registration"]);
+
         return ob_get_clean();
+    }
+
+    /**
+     * Zkontroluje jestli zadany email jiz nepatri nejakemu uzivateli
+     *
+     * @return bool true -> pokud email neexistuje v db
+     */
+    public function checkIfEmailUsed(): bool
+    {
+        if (!(isset($_POST["femail"]))) {
+            return false;
+        }
+
+        return !$this->userDB->emailExists($_POST["femail"]);
     }
 
     /**
@@ -39,18 +64,13 @@ class RegistrationController implements IController
      *
      * @return bool true -> pokud se povedlo prihlasit uzivatele
      */
-    public function checkIfRegister()
+    public function checkIfRegister(): bool
     {
-        if (!($_POST["action"] == "register")) {
+        if (!(isset($_POST["femail"]) && isset($_POST["ff_name"])) && isset($_POST["fl_name"])
+            && isset($_POST["fpassword"]) && isset($_POST["fpassword2"])) {
             return false;
         }
 
-        /*
-        if (!(isset($_POST["femail"]) && isset($_POST["fpassword"]))) {
-            return false;
-        }
-        */
-        echo "Ahoh";
-        return $this->userDB->registerNewUser($_POST["femail"], $_POST["fpassword"],$_POST["ff_name"], $_POST["fl_name"]);
+        return $this->userDB->registerNewUser($_POST["femail"], $_POST["fpassword"], $_POST["ff_name"], $_POST["fl_name"]);
     }
 }

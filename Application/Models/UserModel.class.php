@@ -101,6 +101,23 @@ class UserModel extends DatabaseModel
         return $userData[0];
     }
 
+    /**
+     * Existuje zadany email v databazi?
+     *
+     * @param string $email email
+     * @return bool true -> pokud exituje zadany email v databazi
+     */
+    public function emailExists(string $email): bool
+    {
+        $whereStatement = "email='{$email}'";
+        $res = $this->selectFromTable($this->table_users, $whereStatement);
+
+        if (empty($res))
+            return false;
+
+        return true;
+    }
+
     // private
 
     /**
@@ -121,23 +138,6 @@ class UserModel extends DatabaseModel
         $insertValues = "'{$email}', '{$password}', '{$name}', '{$surname}', $role";
 
         return $this->insertIntoTable($this->table_users, $insertStatement, $insertValues);
-    }
-
-    /**
-     * Existuje zadany email v databazi?
-     *
-     * @param string $email email
-     * @return bool true -> pokud exituje zadany email v databazi
-     */
-    private function emailExists(string $email): bool
-    {
-        $whereStatement = "email='{$email}'";
-        $res = $this->selectFromTable($this->table_users, $whereStatement);
-
-        if (empty($res))
-            return false;
-
-        return true;
     }
 
     // testovací metody
