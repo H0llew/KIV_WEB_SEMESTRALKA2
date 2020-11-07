@@ -108,6 +108,8 @@ class DatabaseModel
     {
         $q = "UPDATE {$tableName} SET {$updateStatementWithValues} WHERE {$whereStatement}";
 
+        echo $q;
+
         $res = $this->executeQuery($q);
 
         if ($res == null)

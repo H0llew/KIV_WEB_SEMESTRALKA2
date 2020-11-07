@@ -48,7 +48,7 @@ const DIR_MODELS = "Models";
 /** server databaze */
 define("DB_SERVER", "localhost");
 /** nazev databaze */
-define("DB_NAME", "web_seminarka");
+define("DB_NAME", "web_semestralka");
 /** jmeno uzivatele */
 define("DB_USER", "root");
 /** heslo uzivatele */
@@ -66,6 +66,10 @@ define("TABLE_RECENZE", "mjakubas_recenze");
 /** identifikator prihlaseneho uzivatele */
 define("SESSION_USER_KEY", "session_user_key");
 
-// cesty
+// nahravani souboru
+
+/** povoleny typ souboru */
+define("ALLOWED_FILE_TYPE", "pdf");
+
 /** cesta k adresari se clanky */
 define("ARTICLES_PATH", "/KIV_WEB_SEMESTRALKA/Uploads/Articles/");
