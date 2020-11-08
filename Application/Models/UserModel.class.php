@@ -2,6 +2,7 @@
 
 require_once "DatabaseModel.class.php";
 require_once "SessionsModel.class.php";
+require_once "RoleModel.class.php";
 
 /**
  * Obsahuje funkce pro praci s tabulkou obsahujici uzivatele aplikace
@@ -10,12 +11,16 @@ class UserModel extends DatabaseModel
 {
     private $table_users = TABLE_UZIVATEL;
 
+    private $roleDB;
+
     private $session;
 
     public function __construct()
     {
         parent::__construct();
         $this->session = new SessionsModel();
+
+        $this->roleDB = new RoleModel();
     }
 
     // public
@@ -69,6 +74,19 @@ class UserModel extends DatabaseModel
         return isset($_SESSION[SESSION_USER_KEY]);
     }
 
+    public function isUserAdmin(): bool
+    {
+        $user = $this->getLoggedUserData();
+        if ($user == null)
+            return false;
+
+        if ($this->roleDB->getRoleWeight($user["id_pravo"] >= 10))
+            return true;
+
+        return false;
+    }
+
+
     /**
      * Odhlasi uzivatele
      */
@@ -116,6 +134,35 @@ class UserModel extends DatabaseModel
             return false;
 
         return true;
+    }
+
+    public function getAllUsers()
+    {
+        if (!$this->isUserAdmin())
+            return null;
+
+        return $this->selectFromTable($this->table_users, "", "");
+    }
+
+    public function getAllReviewers()
+    {
+        if (!$this->isUserAdmin())
+            return null;
+
+        $users = $this->selectFromTable($this->table_users, "", "");
+        if (empty($users))
+            return $users;
+
+        print_r($users);
+
+        $res = [];
+        foreach ($users as $row) {
+            if ($this->roleDB->getRoleWeight($row["id_pravo"]) >= 5) {
+                array_push($res, $row);
+            }
+        }
+
+        return $res;
     }
 
     // private

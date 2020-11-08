@@ -33,6 +33,11 @@ const WEB_PAGES = array(
         "file_name" => "ArticlesController.class.php",
         "class_name" => "ArticlesController",
         "title" => "Články"
+    ),
+    "admin" => array(
+        "file_name" => "AdminController.class.php",
+        "class_name" => "AdminController",
+        "title" => "Admin"
     )
 );
 

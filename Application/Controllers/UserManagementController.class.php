@@ -42,6 +42,8 @@ class UserManagementController implements IController
                 $tplData["userName"] = "";
 
             $this->assignUserArticles();
+
+            $tplData["isAdmin"] = $this->userDB->isUserAdmin();
         }
         //pro fce stranky musi byt uzivatel prihlasen
         if ($tplData["isLogged"]) {

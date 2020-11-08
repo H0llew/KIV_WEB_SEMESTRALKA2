@@ -18,6 +18,11 @@ if ((!isset($tplData["isLogged"])) || (isset($tplData["isLogged"]) && !$tplData[
 } else {
     ?>
     <div class="container">
+        <?php
+        if ($tplData["isAdmin"]) {
+            ?> <a href="index.php?page=admin">admin</a> <?php
+        }
+        ?>
         <!-- novy clanek -->
         <div class="card">
             <div class="d-flex justify-content-center">

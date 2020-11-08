@@ -3,6 +3,7 @@
 require_once "DatabaseModel.class.php";
 require_once "UserModel.class.php";
 require_once "SessionsModel.class.php";
+require_once "RevModel.class.php";
 
 /**
  * Obsahuje funkce pro praci s tabulkou obsahujici clanky uzivatelu
@@ -11,11 +12,13 @@ class ArticlesModel extends DatabaseModel
 {
     private $table_articles = TABLE_CLANEK;
     private $userDB;
+    private $reviewDB;
 
     public function __construct()
     {
         parent::__construct();
         $this->userDB = new UserModel();
+        $this->reviewDB = new RevModel();
     }
 
     // public
@@ -152,5 +155,45 @@ class ArticlesModel extends DatabaseModel
     private function deleteArticle(int $articleID)
     {
         return $this->deleteFromTable($this->table_articles, "id_clanek={$articleID}");
+    }
+
+    // PUBLIC 2.0 stejně budu předělávat... (ffs)
+    public function getNotAssignedArticles()
+    {
+        //vsechny clanky ve stavu 0
+        $articles = $this->selectFromTable($this->table_articles, "schvalen=0");
+        if (empty($articles))
+            return [];
+
+        $res = [];
+        foreach ($articles as $row) {
+            if ($this->reviewDB->existReview($row["id_clanek"]))
+                continue;
+            array_push($res, $row);
+        }
+
+        return $res;
+    }
+
+    public function changeStatus(int $id, int $newStatus)
+    {
+        return $this->updateInTable($this->table_articles, "schvalen={$newStatus}", "id_clanek='{$id}'");
+    }
+
+    public function getDeniedAssignedArticles()
+    {
+        //vsechny clanky ve stavu 0
+        $articles = $this->selectFromTable($this->table_articles, "schvalen=2");
+        if (empty($articles))
+            return [];
+
+        $res = [];
+        foreach ($articles as $row) {
+            if ($this->reviewDB->existReview($row["id_clanek"]))
+                continue;
+            array_push($res, $row);
+        }
+
+        return $res;
     }
 }
