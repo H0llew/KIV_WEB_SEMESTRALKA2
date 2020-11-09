@@ -12,12 +12,16 @@ class UserManagementController implements IController
     /** instance tabulky clanku */
     private $articlesDB;
 
+    private $revDB;
+
     public function __construct()
     {
         require_once(DIR_MODELS . "/UserModel.class.php");
         require_once(DIR_MODELS . "/ArticlesModel.class.php");
+        require_once(DIR_MODELS . "/RevModel.class.php");
         $this->userDB = new UserModel();
         $this->articlesDB = new ArticlesModel();
+        $this->revDB = new RevModel($this->articlesDB);
     }
 
     /**
@@ -44,6 +48,10 @@ class UserManagementController implements IController
             $this->assignUserArticles();
 
             $tplData["isAdmin"] = $this->userDB->isUserAdmin();
+            $tplData["isReviewer"] = $this->userDB->isUserReviewer();
+            if ($tplData["isReviewer"]) {
+                $tplData["needRev"] = $this->revDB->getUserArticleForRev($this->userDB->getLoggedUserData()["id_uzivatel"]);
+            }
         }
         //pro fce stranky musi byt uzivatel prihlasen
         if ($tplData["isLogged"]) {
@@ -51,6 +59,9 @@ class UserManagementController implements IController
             if (isset($_POST["action"])) {
                 $tplData["uploaded"] = $this->checkIfUpload();
                 $tplData["edit"] = $this->checkIfEdit();
+            }
+            if (isset($_POST["revi"])) {
+                $tplData["didRevi"] = $this->checkIfRevi();
             }
         }
 
@@ -127,4 +138,14 @@ class UserManagementController implements IController
 
         return $this->articlesDB->updateSelectedArticle($_POST["fdate"], $_POST["ffilePath"], $_POST["fheading"], $_POST["fabstract"]);
     }
+
+    private function checkIfRevi(int $id_uzivatel = 1)
+    {
+        $clanekID = $_POST["revi"];
+        $hodnoceni = (int)$_POST["fhodnoceni"];
+        $zprava = $_POST["fmes"];
+
+        return $this->revDB->updateReview($id_uzivatel, $clanekID, $hodnoceni, $zprava);
+    }
+
 }

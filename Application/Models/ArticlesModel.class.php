@@ -196,4 +196,48 @@ class ArticlesModel extends DatabaseModel
 
         return $res;
     }
+
+    public function getAssignedButNoValidArticles()
+    {
+        //vsechny clanky ve stavu 0
+        $articles = $this->selectFromTable($this->table_articles, "schvalen=0");
+        if (empty($articles))
+            return [];
+
+        $res = [];
+        foreach ($articles as $row) {
+            if ($this->reviewDB->existReview($row["id_clanek"]) && $this->reviewDB->existValidReview($row["id_clanek"]))
+                continue;
+            array_push($res, $row);
+        }
+
+        return $res;
+    }
+
+    public function getAssignedBAndValidArticles()
+    {
+        //vsechny clanky ve stavu 0
+        $articles = $this->selectFromTable($this->table_articles, "schvalen=0");
+        if (empty($articles))
+            return [];
+
+        $res = [];
+        foreach ($articles as $row) {
+            print_r($row);
+            $boo = $this->reviewDB->existValidReview($row["id_clanek"]);
+            if ($boo)
+                echo "ANO";
+            if ($this->reviewDB->existReview($row["id_clanek"]) && !$this->reviewDB->existValidReview($row["id_clanek"]))
+                continue;
+            array_push($res, $row);
+        }
+
+        return $res;
+    }
+
+    public function getArticlesForRev()
+    {
+        $userID = $this->userDB->getLoggedUserData()["id_uzivatel"];
+
+    }
 }

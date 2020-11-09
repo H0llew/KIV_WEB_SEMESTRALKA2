@@ -53,6 +53,80 @@ if ($tplData["isAdmin"]) {
             </div>
         </div>
         <div class="card">
+            <div class="card-title">Přiřazené články čekající na schválení</div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Název</th>
+                        <th>Autor</th>
+                        <th>Datum nahrání</th>
+                        <th>Podrobnosti</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    if (isset($tplData["reviewedArticles"])) {
+                        foreach ($tplData["reviewedArticles"] as $row) {
+                            ?>
+                            <tr>
+                                <td><?php echo $row["nazev"] ?></td>
+                                <td><?php echo $row["id_uzivatel"] ?></td>
+                                <td><?php echo $row["datum"] ?></td>
+                                <td>
+                                    <form action="" method="POST">
+                                        <div class="form-group">
+                                            <input hidden id="id" name="id" value="<?php echo $row["id_clanek"] ?>">
+                                            <button type="submit" name="submit" value="<?php echo $row["id_clanek"] ?>"
+                                                    Schválit
+                                            </button>
+                                            <button type="submit" name="deny" value="deny" class="btn btn-primary">
+                                                Zamítnout
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Přiřazené články čekající na ohodnocení</div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Název</th>
+                        <th>Autor</th>
+                        <th>Datum nahrání</th>
+                        <th>Podrobnosti</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    if (isset($tplData["notReviewedArticles"])) {
+                        foreach ($tplData["notReviewedArticles"] as $row) {
+                            ?>
+                            <tr>
+                                <td><?php echo $row["nazev"] ?></td>
+                                <td><?php echo $row["id_uzivatel"] ?></td>
+                                <td><?php echo $row["datum"] ?></td>
+                                <td>TODO</td>
+                            </tr>
+                            <?php
+                        }
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
             <div class="card-title">Články bez přiděleného hodnocení</div>
             <div class="card-body">
                 <table class="table">
@@ -101,22 +175,26 @@ if ($tplData["isAdmin"]) {
 
                                                 <!-- Modal body -->
                                                 <div class="modal-body">
-                                                    <div class="form-group">
-                                                        <label for="frecenzent">Recenzent</label>
-                                                        <select id="frecenzent" class="form-control">
-                                                            <?php
-                                                            foreach ($tplData["reviewers"] as $row) {
-                                                                ?>
-                                                                <option> <?php echo $row["jmeno"] . $row["prijmeni"] ?> </option>
+                                                    <form action="" method="POST">
+                                                        <div class="form-group">
+                                                            <label for="frecenzent">Recenzent</label>
+                                                            <select id="frecenzent" name="frecenzent"
+                                                                    class="form-control">
                                                                 <?php
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                        <button type="submit" name="assign" value="assign"
-                                                                class="btn btn-primary">
-                                                            Přiradit
-                                                        </button>
-                                                    </div>
+                                                                foreach ($tplData["reviewers"] as $rowr) {
+                                                                    ?>
+                                                                    <option value="<?php echo $row["id_uzivatel"] ?>"> <?php echo $rowr["jmeno"] . $rowr["prijmeni"] ?> </option>
+                                                                    <?php
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                            <button type="submit" name="assign"
+                                                                    value="<?php echo $row["id_clanek"] ?>"
+                                                                    class="btn btn-primary">
+                                                                Přiradit
+                                                            </button>
+                                                        </div>
+                                                    </form>
                                                 </div>
 
                                                 <!-- Modal footer -->

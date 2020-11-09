@@ -86,6 +86,18 @@ class UserModel extends DatabaseModel
         return false;
     }
 
+    public function isUserReviewer(): bool
+    {
+        $user = $this->getLoggedUserData();
+        if ($user == null)
+            return false;
+
+        if ($this->roleDB->getRoleWeight($user["id_pravo"] >= 5))
+            return true;
+
+        return false;
+    }
+
 
     /**
      * Odhlasi uzivatele
@@ -153,7 +165,6 @@ class UserModel extends DatabaseModel
         if (empty($users))
             return $users;
 
-        print_r($users);
 
         $res = [];
         foreach ($users as $row) {

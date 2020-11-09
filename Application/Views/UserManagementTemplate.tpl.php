@@ -23,6 +23,149 @@ if ((!isset($tplData["isLogged"])) || (isset($tplData["isLogged"]) && !$tplData[
             ?> <a href="index.php?page=admin">admin</a> <?php
         }
         ?>
+        <?php
+        if ($tplData["isReviewer"]) {
+            ?>
+            <div class="card">
+                <div class="card-title">Články čekající na vaše hodnocení</div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Název</th>
+                            <th>Autor</th>
+                            <th>Datum vložení</th>
+                            <th>Více informací</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        if (isset($tplData["needRev"])) {
+                            $count = 0;
+                            foreach ($tplData["needRev"] as $row) {
+                                ?>
+                                <tr>
+                                    <td><?php echo $row["nazev"] ?></td>
+                                    <td><?php echo $row["id_uzivatel"] ?></td>
+                                    <td><?php echo $row["datum"] ?></td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                                data-target="#textArticle<?php echo $count ?>">
+                                            Podrobnosti
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                                data-target="#textArticleRev<?php echo $count ?>">
+                                            Napsat recenzi
+                                        </button>
+                                    </td>
+                                </tr>
+                                <div class="modal" id="textArticle<?php echo $count ?>">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <div class="modal-header text justify-content-center">
+                                                <h4 class="modal-title">Článek</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- forma -->
+                                                <form enctype="multipart/form-data" action="" method="POST">
+                                                    <div class="form-group">
+                                                        <label for="fheading">Název</label>
+                                                        <input type="text" name="fheading" class="form-control"
+                                                               id="fabstract" value="<?php echo $row["nazev"] ?>"
+                                                               readonly>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="fdate">Datum nahrání</label>
+                                                        <input type="text" name="fdate" class="form-control"
+                                                               id="fdate" value="<?php echo $row["datum"] ?>"
+                                                               readonly>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="fabstract">Abstrakt</label>
+                                                        <textarea id="fabstract" name="fabstract" class="form-control"
+                                                                  rows="10"
+                                                                  cols="50"
+                                                                  readonly><?php echo $row["abstrakt"] ?></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="fname">Autor</label>
+                                                        <input type="text" name="fname" class="form-control"
+                                                               id="fname"
+                                                               placeholder="<?php echo $tplData["userName"] ?>"
+                                                               readonly>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="hidden" id="ffilePath" name="ffilePath"
+                                                               value="<?php echo $row["soubor"] ?>">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
+                                                        <a href="<?php echo $row["soubor"] ?>"
+                                                           download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
+                                                            článek</a>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                                                    Zavřít
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal" id="textArticleRev<?php echo $count ?>">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <div class="modal-header text justify-content-center">
+                                                <h4 class="modal-title">Recenze</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- forma -->
+                                                <form enctype="multipart/form-data" action="" method="POST">
+                                                    <div class="form-group">
+                                                        <label for="fhodnoceni">Hodnocení</label>
+                                                        <input type="text" name="fhodnoceni" class="form-control"
+                                                               id="fhodnoceni"
+                                                               required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="fmes">Datum nahrání</label>
+                                                        <input type="text" name="fmes" class="form-control"
+                                                               id="fmes"
+                                                               required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <button type="submit" name="revi" id="revi" value="<?php echo $row["id_clanek"]?>">
+                                                            Odeslat hodnocení
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                                                    Zavřít
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php
+                                $count++;
+                            }
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php
+        }
+        ?>
         <!-- novy clanek -->
         <div class="card">
             <div class="d-flex justify-content-center">
