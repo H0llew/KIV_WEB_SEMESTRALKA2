@@ -7,14 +7,6 @@ require_once("IController.interface.php");
  */
 class IndexController implements IController
 {
-    /** instance tabulky s uzivateli */
-    private $userDB;
-
-    public function __construct()
-    {
-        require_once(DIR_MODELS . "/UserModel.class.php");
-        $this->userDB = new UserModel();
-    }
 
     /**
      * Preda kod stranky ve stringu
@@ -26,10 +18,9 @@ class IndexController implements IController
     {
         global $tplData;
         $tplData = [];
-        // nazev
-        $tplData["title"] = $pageTitle;
-        // prihlaseni
-        $tplData["isLogged"] = $this->userDB->isUserLoggedIn();
+
+        $tplData["isLogged"] = false;
+        $tplData["isAdmin"] = false;
 
         ob_start();
         require(DIR_VIEWS . "/IndexTemplate.tpl.php");

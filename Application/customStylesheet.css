@@ -1,0 +1,29 @@
+.custom-btn-primary {
+    color: papayawhip !important;
+    background-color: #083B66 !important;
+}
+
+.custom-btn-secondary {
+    color: papayawhip !important;
+    background-color: #1761A0 !important;
+}
+
+.custom-light-text {
+    color: papayawhip !important;
+}
+
+.custom-text-primary {
+    color: #083B66 !important;
+}
+
+.custom-text-secondary {
+    color: #1761A0 !important;
+}
+
+.custom-btn-submit-long {
+    margin-bottom: 5rem !important;
+}
+
+hr {
+    border-color: #1761A0;
+}

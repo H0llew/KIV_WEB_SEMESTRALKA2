@@ -1,25 +1,25 @@
 <?php
 
 /**
- * Obsahuje zakladni sablonu kazde strany aplikace
- * Pro stylizaci je pouzit bootstrap 4
+ * Zakladni sablon kazde stranky aplikace.
+ * Sablona pouziva pro stylizaci bootstrap 4
  */
 class PageTemplate
 {
-    // BASIC
+    // zakladni metody
 
     /**
-     * Vytvori hlavicku HTML5 stranky a zaroven vytvori zacatek tela stranky
+     * Vytvori hlavicku ('head') HTML5 webove stranky
      *
      * @param string $title titulek stranky
      */
-    public function getTop(string $title)
+    public function getHead(string $title)
     {
         ?>
         <!doctype HTML>
         <html lang="cs">
         <head>
-            <title><?php echo $title ?></title>
+            <title> <?php echo $title ?> </title>
             <meta charset="UTF-8">
 
             <!-- mobile first -->
@@ -29,87 +29,106 @@ class PageTemplate
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
             <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <!-- custom css -->
+            <link rel="stylesheet" href="customStylesheet.css">
         </head>
-        <body>
         <?php
     }
 
     /**
-     * Vytvori zakonceni webove stranky
+     * Zakonci webovou stranku
      */
-    public function getBottom()
+    public function getEnd()
     {
         ?>
-        </body>
         </html>
         <?php
     }
 
-    // UTILS
+    // obecne rozsireni sablony
 
     /**
-     * Vytvori navigacni listu aplikace
+     * Vytvori navigacni listu webove stranky
      *
-     * @param bool $isLoggedIn je uzivatel prihlasen?
+     * @param bool $isLogged je uzivatel prihlasen?
+     * @param bool $isAdmin je uzivatel admin?
      */
-    public function getNavbar(bool $isLoggedIn = false)
+    public function getNavbar(bool $isLogged = false, bool $isAdmin = false)
     {
         ?>
         <!-- navbar -->
-        <nav class="my-nav navbar navbar-expand-lg sticky-top bg-light navbar-light">
-            <!-- logo -->
-            <a class="navbar-brand py-0 my-0" href="index.php">
-                <img src="../Media/Logo.png" style="width: 70%;height: 70%" alt="">
-            </a>
-            <!-- Kolapsujici navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <!-- kolapsujici navbar -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            <!-- logo -->
+            <div class="order-0">
+                <a class="navbar-brand py-0 my-0" href="index.php">
+                    <img src="../Res/Logo.png" style="width: 70%;height: 70%" alt="">
+                </a>
+            </div>
             <!-- navbar -->
-            <div class="collapse navbar-collapse" id="collapsibleNavbar">
-                <ul class="nav navbar-nav flex-fill justify-content-center">
+            <div class="navbar-collapse collapse order-2" id="collapsibleNavbar">
+                <!-- hl. navbar -->
+                <ul class="nav navbar-nav mx-auto">
+                    <!-- uvod -->
                     <li class="nav-item">
                         <a class="nav-link" href="index.php#uvod">Úvod</a>
                     </li>
+                    <!-- o nas -->
                     <li class="nav-item">
                         <a class="nav-link" href="index.php#o_nas">O nás</a>
                     </li>
+                    <!-- sponzori -->
                     <li class="nav-item">
                         <a class="nav-link" href="index.php#sponzori">Sponzoři</a>
                     </li>
+                    <!-- terminy -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Termíny</a>
+                        <a class="nav-link" href="index.php?page=terms">Termíny</a>
                     </li>
+                    <!-- kontakt -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Kontakt</a>
+                        <a class="nav-link" href="index.php?page=contact">Kontakt</a>
                     </li>
+                    <!-- clanky -->
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php?page=articles">Články</a>
+                        <a class="nav-link" href="#">Články</a>
                     </li>
                 </ul>
-                <!-- user management -->
+                <!-- uzivatele -->
                 <ul class="nav navbar-nav">
                     <?php
-                    if ($isLoggedIn) {
+                    if ($isLogged) {
+                        if ($isAdmin) {
+                            ?>
+                            <!-- admin -->
+                            <li class=" nav-item">
+                                <a class="nav-link custom-btn-primary" href="#">Admin</a>
+                            </li>
+                            <?php
+                        }
+
                         ?>
+                        <!-- sprava uzivatele -->
                         <li class="nav-item">
-                            <a class="nav-link" href="index.php?page=user_management"
-                               style="background-color: #1761A0;color: papayawhip">Správa uživatele</a>
+                            <a class="nav-link custom-btn-secondary" href="#">Správa uživatele</a>
                         </li>
+                        <!-- odhlasit se -->
                         <li class="nav-item">
-                            <a class="nav-link" href="index.php?page=login&action=logout"
-                               style="background-color: #083B66;color: papayawhip">Odhlásit se</a>
+                            <a class="nav-link custom-btn-primary" href="#">Odhlásit se</a>
                         </li>
                         <?php
                     } else {
                         ?>
+                        <!-- prihlasit se -->
                         <li class="nav-item">
-                            <a class="nav-link" href="index.php?page=login"
-                               style="background-color: #1761A0;color: papayawhip">Přihlášení</a>
+                            <a class="nav-link custom-btn-secondary" href="index.php?page=login">Přihlásit se</a>
                         </li>
+                        <!-- registrovat se -->
                         <li class="nav-item">
-                            <a class="nav-link" href="index.php?page=registration"
-                               style="background-color: #083B66;color: papayawhip">Registrace</a>
+                            <a class="nav-link custom-btn-primary" href="index.php?page=registration">Registrovat se</a>
                         </li>
                         <?php
                     }

@@ -1,88 +1,158 @@
 <?php
 
-//data
-global $tplData;
-
+// zajisteni zakladni sablony webove stranky
+require_once("settings.inc.php");
 require_once("PageTemplate.class.php");
+$pageTpl = new PageTemplate();
 
-$tmp = new PageTemplate();
-// zacatek stranky
-$tmp->getTop($tplData["title"]);
-$tmp->getNavbar(isset($tplData["isLogged"]) ? $tplData["isLogged"] : false);
-?>
-<?php
-    if (isset($tplData["isLogged"]) && $tplData["isLogged"]) {
-        echo "jiz jste registrovan";
-    }
-    else if (isset($tplData["registration"])) {
-        if ($tplData["registration"]) {
-            ?>
-            <div class="container">
-                <div class="text-center" style="margin-bottom: 20rem;margin-top: 20rem">
-                    <h4 class="text-center" style="color: #083B66">Děkujeme Vám za registraci!</h4>
-                    <p>prosím zkontrolujte svůj email a postupujte podle pokynů uvedených v emailu</p>
-                </div>
-            </div>
-<?php
-        }
-        else {
-            echo "registrace selhala";
-        }
-    }
-    else {
-        if (isset($tplData["email_used"]) && !$tplData["email_used"])
-            echo "spatny mail"
+//predavana data z controlleru
+global $tplData;
+//pouzivana data
+//$tplData["isLogged"];  // je prihlasen?
+//$tplData["registrationSuccessful"]; // prihlaseni uspesne?
+//$tplData["isAdmin"];  // je uzivatel admin?
+
+// metody stranky
+$pageContent = new class {
+
+    /**
+     * Vypise formular potrebny pro registraci uzivatele do aplikace
+     */
+    public function showRegistrationForm()
+    {
         ?>
-        <div class="container">
+        <!-- registrace -->
+        <h2 class="text-center py-5 custom-text-primary h1">REGISTRACE</h2>
 
+        <form action="" method="POST">
+            <div class="form-group">
+                <label for="femail" class="custom-text-secondary">E-mail</label>
+                <input type="email" class="form-control" id="femail" name="femail" placeholder="E-mail" required><br>
+            </div>
+            <div class="form-group">
+                <label for="ff_name" class="custom-text-secondary">Křestní jméno</label>
+                <input type="text" class="form-control" id="ff_name" name="ff_name" placeholder="Jméno" required><br>
+            </div>
+            <div class="form-group">
+                <label for="fl_name" class="custom-text-secondary">Přijmení</label>
+                <input type="text" class="form-control" id="fl_name" name="fl_name" placeholder="Přijmení" required><br>
+            </div>
+            <div class="form-group">
+                <label for="fpassword" class="custom-text-secondary">Heslo</label>
+                <input type="password" class="form-control" id="fpassword" name="fpassword" placeholder="Heslo"
+                       required><br>
 
-            <h1 class="text-center py-5" style="color: #083B66">REGISTRACE</h1>
+                <label for="fpassword2" class="custom-text-secondary">Heslo</label>
+                <input type="password" class="form-control" id="fpassword2" name="fpassword2"
+                       placeholder="Zopakujte Heslo" required
+                       onchange="comparePw()"><br>
+                <p id="ctext" class="text-warning py-0" style="font-size: small; display: none"> *zadaná hesla musí být
+                    stejná </p>
+            </div>
+            <button type="submit" name="action" id="register" value="register"
+                    class="btn btn-light w-100 py-2 custom-btn-submit-long" disabled>
+                Registrovat se
+            </button>
+        </form>
+        <script>
+            function comparePw() {
+                var str1 = document.getElementById("fpassword").value;
+                var str2 = document.getElementById("fpassword2").value;
 
-            <form action="" method="POST">
-                <div class="form-group">
-                    <label for="femail" style="color: #1761A0">E-mail</label>
-                    <input type="email" class="form-control" id="femail" name="femail" placeholder="E-mail" required><br>
+                if (str1 === str2) {
+                    document.getElementById("register").disabled = false;
+                    document.getElementById("ctext").style.display = "none";
+                } else {
+                    document.getElementById("register").disabled = true;
+                    document.getElementById("ctext").style.display = "block";
+                }
+            }
+        </script>
+        <?php
+    }
 
-                    <label for="ff_name" style="color: #1761A0">Křestní jméno</label>
-                    <input type="text" class="form-control" id="ff_name" name="ff_name" placeholder="Jméno" required><br>
+    /**
+     * Vypise, ze uzivatel je jiz prihlasen a nema cenu se prihlasovat
+     */
+    public function showAlreadyLogged()
+    {
+        ?>
+        <h2 class="h1 custom-text-primary text-center py-5">Nemůžete se registrovat, když jste přihlášeni!</h2>
+        <?php
+    }
 
-                    <label for="fl_name" style="color: #1761A0">Přijmení</label>
-                    <input type="text" class="form-control" id="fl_name" name="fl_name" placeholder="Přijmení" required><br>
+    /**
+     * Vypise uspesnou registraci
+     */
+    public function showSuccessfulRegistration()
+    {
+        ?>
+        <h2 class="h3 custom-text-primary text-center py-5">Děkujeme Vám za registraci! <br>
+            Prosím zkontrolujte si svůj email a postupujte podle pokuný uvedených v emailu.</h2>
+        <?php
+    }
 
-                    <label for="fpassword" style="color: #1761A0">Heslo</label>
-                    <input type="password" class="form-control" id="fpassword" name="fpassword" placeholder="Heslo"
-                           required><br>
-
-                    <label for="fpassword2" style="color: #1761A0">Heslo</label>
-                    <input type="password" class="form-control" id="fpassword2" name="fpassword2"
-                           placeholder="Zopakujte Heslo" required
-                           onchange="comparePw()"><br>
-                    <p id="ctext" class="text-warning py-0" style="font-size: small; display: none"> *zadaná hesla musí být
-                        stejná </p>
-                </div>
-                <button type="submit" name="action" id="register" value="register" class="btn btn-light w-100 py-2"
-                        style="margin-bottom: 5rem" disabled>
-                    Registrovat se
-                </button>
-            </form>
+    /**
+     * Vypise neuspesnou registraci
+     */
+    public function showRegistrationFailed()
+    {
+        ?>
+        <div class="alert alert-danger text-center">
+            <strong>Registrace selhala.</strong> Prosím zkuste to znovu později.
         </div>
-<?php
+        <?php
     }
 
-$tmp->getBottom();
+    /**
+     * Vypise neuspesnou registraci (duvod email je jiz zabran)
+     */
+    public function showEmailTaken()
+    {
+        ?>
+        <div class="alert alert-danger text-center">
+            <strong>Registrace selhala.</strong> Email je zabrán. Prosím použijte jiný email.
+        </div>
+        <?php
+    }
+};
+
+// webova stranka
+$pageTpl->getHead("test");
 ?>
-
-<script>
-    function comparePw() {
-        var str1 = document.getElementById("fpassword").value;
-        var str2 = document.getElementById("fpassword2").value;
-
-        if (str1 === str2) {
-            document.getElementById("register").disabled = false;
-            document.getElementById("ctext").style.display = "none";
+    <body>
+    <?php
+    // kontex stranky
+    $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
+    ?>
+    <div class="container">
+        <?php
+        if (!isset($tplData["registrationSuccessful"])) {
+            // pravdepodobne nebyl proveden pokus o registraci
+            if ($tplData["isLogged"]) {
+                // uzivatel je prihlasen
+                $pageContent->showAlreadyLogged();
+            } else {
+                // uzivatel neni prihlasen
+                $pageContent->showRegistrationForm();
+            }
         } else {
-            document.getElementById("register").disabled = true;
-            document.getElementById("ctext").style.display = "block";
+            // probehl pokus o registraci
+            if ($tplData["registrationSuccessful"]) {
+                $pageContent->showSuccessfulRegistration();
+            } else {
+                if ($tplData["emailTaken"]) {
+                    $pageContent->showRegistrationFailed();
+                } else {
+                    $pageContent->showEmailTaken();
+                }
+                $pageContent->showRegistrationForm();
+            }
         }
-    }
-</script>
+        ?>
+    </div>
+    <?php
+    ?>
+    </body>
+<?php
+$pageTpl->getEnd();

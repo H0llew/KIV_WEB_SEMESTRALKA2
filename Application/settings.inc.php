@@ -38,7 +38,15 @@ const WEB_PAGES = array(
         "file_name" => "AdminController.class.php",
         "class_name" => "AdminController",
         "title" => "Admin"
-    )
+    ),
+    "terms" => array(
+        "file_name" => "TermsController.class.php",
+        "class_name" => "TermsController",
+        "title" => "Termíny"),
+    "contact" => array(
+        "file_name" => "ContactController.class.php",
+        "class_name" => "ContactController",
+        "title" => "Kontaktujte Nás")
 );
 
 /** adresar ovladacu (Controllers) */

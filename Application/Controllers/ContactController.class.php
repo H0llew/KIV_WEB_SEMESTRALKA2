@@ -3,9 +3,9 @@
 require_once("IController.interface.php");
 
 /**
- * Ovladac pro stranku s prihlasenim (login)
+ * Ovladac pro uvodni stranku (index)
  */
-class LoginController implements IController
+class ContactController implements IController
 {
 
     /**
@@ -21,11 +21,9 @@ class LoginController implements IController
 
         $tplData["isLogged"] = false;
         $tplData["isAdmin"] = false;
-        //$tplData["loginSuccessful"] = false;
-        $tplData["emailTaken"] = false;
 
         ob_start();
-        require(DIR_VIEWS . "/LoginTemplate.tpl.php");
+        require(DIR_VIEWS . "/ContactTemplate.tpl.php");
         return ob_get_clean();
     }
 }

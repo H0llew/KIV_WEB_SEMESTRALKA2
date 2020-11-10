@@ -3,11 +3,10 @@
 require_once("IController.interface.php");
 
 /**
- * Ovladac pro stranku s prihlasenim (login)
+ * Ovladac pro stranku s terminy (terms)
  */
-class LoginController implements IController
+class TermsController implements IController
 {
-
     /**
      * Preda kod stranky ve stringu
      *
@@ -21,11 +20,9 @@ class LoginController implements IController
 
         $tplData["isLogged"] = false;
         $tplData["isAdmin"] = false;
-        //$tplData["loginSuccessful"] = false;
-        $tplData["emailTaken"] = false;
 
         ob_start();
-        require(DIR_VIEWS . "/LoginTemplate.tpl.php");
+        require(DIR_VIEWS . "/TermsTemplate.tpl.php");
         return ob_get_clean();
     }
 }

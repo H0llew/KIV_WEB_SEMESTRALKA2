@@ -1,54 +1,118 @@
 <?php
 
-//data
-global $tplData;
-
+// zajisteni zakladni sablony webove stranky
+require_once("settings.inc.php");
 require_once("PageTemplate.class.php");
+$pageTpl = new PageTemplate();
 
-$tmp = new PageTemplate();
-// zacatek stranky
-$tmp->getTop($tplData["title"]);
-$tmp->getNavbar(isset($tplData["isLogged"]) ? $tplData["isLogged"] : false);
-?>
-    <!-- Obsah stranky -->
-    <div class="container">
-        <?php
-        if ((!isset($tplData["login"]) && (isset($tplData["isLogged"])) && $tplData["isLogged"]) ||
-            ((isset($tplData["isLogged"])) && $tplData["isLogged"]))
-        {
-        ?><h3>Jste přihlášeni</h3><?php
-        }
-        else {
-            ?>
-        <!-- upozorneni -->
-            <?php
-            if (isset($tplData["login"]) && !$tplData["login"]) {
-            ?>
-                <div class="alert alert-danger text-center">
-                    <strong>Přihlášení selhalo.</strong> Ověřte prosím vyplněný email a vyplněné heslo.
-                </div>
-            <?php
-            }
-            ?>
+//predavana data z controlleru
+global $tplData;
+//pouzivana data
+//$tplData["isLogged"];  // je prihlasen?
+//$tplData["loginSuccessful"]; // prihlaseni uspesne?
+//$tplData["isAdmin"];  // je uzivatel admin?
+
+// metody stranky
+$pageContent = new class {
+
+    /**
+     * Vypise formular potrebny pro prihlaseni do aplikace
+     */
+    public function showLoginForm()
+    {
+        ?>
         <!-- login -->
-        <h1 class="text-center py-5" style="color: #083B66">PŘIHLÁSIT SE</h1>
-
+        <h2 class="text-center py-5 custom-text-primary h1">PŘIHLÁSIT SE</h2>
+        <!-- form -->
         <form action="" method="POST">
             <div class="form-group">
-                <label for="femail" style="color: #1761A0">E-mail</label>
+                <label for="femail" class="custom-text-secondary">E-mail</label>
                 <input type="email" class="form-control" id="femail" name="femail" placeholder="Zadejte E-mail"><br>
-
-                <label for="fpassword" style="color: #1761A0">Předmět</label>
-                <input type="password" class="form-control" id="fpassword" name="fpassword" placeholder="Heslo"><br>
-
-                <button type="button" class="btn py-1" style="color: #1761A0">Zapomněl jsem heslo</button>
             </div>
-            <button type="submit" name="action" value="login" class="btn btn-light w-100 py-2"
-                    style="margin-bottom: 5rem">Odeslat
+            <div class="form-group">
+                <label for="fpassword" class="custom-text-secondary">Heslo</label>
+                <input type="password" class="form-control" id="fpassword" name="fpassword" placeholder="Heslo"><br>
+            </div>
+
+            <a href="#" data-toggle="popover" title="Upozornění!"
+               data-content="Tato funkce není momentálně k dispozici">Zapomněl jsem heslo!</a>
+            <script>
+                $(document).ready(function () {
+                    $('[data-toggle="popover"]').popover();
+                });
+            </script>
+
+            <button type="submit" name="action" value="login"
+                    class="btn btn-light w-100 py-2 custom-btn-submit-long custom-text-primary">
+                Odeslat
             </button>
         </form>
-    </div>
-<?php
-        }
+        <?php
+    }
 
-$tmp->getBottom();
+    /**
+     * Vypise, ze uzivatel je jiz prihlasen a nema cenu se prihlasovat
+     */
+    public function showAlreadyLogged()
+    {
+        ?>
+        <h2 class="h1 custom-text-primary text-center py-5">Již jste přihlášeni!</h2>
+        <?php
+    }
+
+    /**
+     * Vypise uspesne prihlaseni
+     */
+    public function showSuccessfulLogin()
+    {
+        ?>
+        <h2 class="h1 custom-text-primary text-center py-5">Úspěšně jste se přihlásili!</h2>
+        <?php
+    }
+
+    /**
+     * Vypise neuspesne prihlaseni
+     */
+    public function showLoginFailed()
+    {
+        ?>
+        <div class="alert alert-danger text-center">
+            <strong>Přihlášení selhalo.</strong> Ověřte prosím vyplněný email a vyplněné heslo.
+        </div>
+        <?php
+    }
+};
+
+// webova stranka
+$pageTpl->getHead("test");
+?>
+    <body>
+    <?php
+    // kontex stranky
+    $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
+    ?>
+    <div class="container">
+        <?php
+        if (!isset($tplData["loginSuccessful"])) {
+            // pravdepodobne nebyl proveden pokus o prihlaseni
+            if ($tplData["isLogged"]) {
+                // uzivatel je prihlasen
+                $pageContent->showAlreadyLogged();
+            } else {
+                // uzivatel neni prihlasen
+                $pageContent->showLoginForm();
+            }
+        } else {
+            // probehl pokus o prihlaseni
+            if ($tplData["loginSuccessful"]) {
+                $pageContent->showSuccessfulLogin();
+            } else {
+                $pageContent->showLoginFailed();
+                $pageContent->showLoginForm();
+            }
+        }
+        ?>
+    </div>
+    </body>
+<?php
+$pageTpl->getEnd();
