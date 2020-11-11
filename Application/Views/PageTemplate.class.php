@@ -113,7 +113,8 @@ class PageTemplate
                         ?>
                         <!-- sprava uzivatele -->
                         <li class="nav-item">
-                            <a class="nav-link custom-btn-secondary" href="#">Správa uživatele</a>
+                            <a class="nav-link custom-btn-secondary" href="index.php?page=user_management">Správa
+                                uživatele</a>
                         </li>
                         <!-- odhlasit se -->
                         <li class="nav-item">

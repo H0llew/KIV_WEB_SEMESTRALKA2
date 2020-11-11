@@ -46,7 +46,22 @@ const WEB_PAGES = array(
     "contact" => array(
         "file_name" => "ContactController.class.php",
         "class_name" => "ContactController",
-        "title" => "Kontaktujte Nás")
+        "title" => "Kontaktujte Nás"),
+    "create_article" => array(
+        "file_name" => "CreateNewArticleController.class.php",
+        "class_name" => "CreateNewArticleController",
+        "title" => "Vytvořit příspěvek"
+    ),
+    "my_articles" => array(
+        "file_name" => "MyArticlesController.class.php",
+        "class_name" => "MyArticlesController",
+        "title" => "Moje příspěvky"
+    ),
+    "my_reviews" => array(
+        "file_name" => "MyReviewsController.class.php",
+        "class_name" => "MyReviewsController",
+        "title" => "Moje Recenze"
+    ),
 );
 
 /** adresar ovladacu (Controllers) */

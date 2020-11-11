@@ -3,9 +3,9 @@
 require_once("IController.interface.php");
 
 /**
- * Ovladac pro uvodni stranku (index)
+ * Ovladac pro stranku se správou uživatele (user_management)
  */
-class UserManagementController implements IController
+class CreateNewArticleController implements IController
 {
 
     /**
@@ -21,9 +21,11 @@ class UserManagementController implements IController
 
         $tplData["isLogged"] = false;
         $tplData["isAdmin"] = false;
+        $tplData["userFullName"] = "test";
+        //$tplData["successfulUpload"] = true;
 
         ob_start();
-        require(DIR_VIEWS . "/UserManagementTemplate.tpl.php");
+        require(DIR_VIEWS . "/CreateNewArticleTemplate.tpl.php");
         return ob_get_clean();
     }
 }
