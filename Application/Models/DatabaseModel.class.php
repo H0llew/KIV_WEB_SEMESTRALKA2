@@ -10,10 +10,13 @@ class DatabaseModel
 
     /**
      * Instance inicializuje připojení k databázi
+     *
+     * @param $pdo PDO databaze
      */
-    protected function __construct()
+    protected function __construct(PDO $pdo)
     {
-        $this->pdo = new PDO("mysql:host=" . DB_SERVER . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+        //$this->pdo = new PDO("mysql:host=" . DB_SERVER . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+        $this->pdo = $pdo;
         $this->pdo->exec("set names utf8");
     }
 
@@ -41,11 +44,12 @@ class DatabaseModel
      * @param string $tableName nazev tabulky
      * @param string $whereStatement kde
      * @param string $orderByStatement razeni
+     * @param string $whatStatement co vybiram
      * @return array radky tabulky nebo null
      */
-    protected function selectFromTable(string $tableName, string $whereStatement = "", string $orderByStatement = ""): array
+    protected function selectFromTable(string $tableName, string $whereStatement = "", string $orderByStatement = "", string $whatStatement = "*"): array
     {
-        $q = "SELECT * FROM {$tableName}"
+        $q = "SELECT {$whatStatement} FROM {$tableName}"
             . (($whereStatement == "") ? "" : " WHERE {$whereStatement}")
             . (($orderByStatement) == "" ? "" : " ORDER BY $orderByStatement");
 
@@ -116,5 +120,15 @@ class DatabaseModel
             return false;
 
         return true;
+    }
+
+    /**
+     * Vrati PDO
+     *
+     * @return PDO
+     */
+    public function getPDO()
+    {
+        return $this->pdo;
     }
 }

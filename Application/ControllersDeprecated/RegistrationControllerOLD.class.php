@@ -15,7 +15,7 @@ class RegistrationControllerOLD implements IController
     public function __construct()
     {
         require_once(DIR_MODELS . "/UserModel.class.php");
-        $this->userDB = new UserModel();
+        $this->userDB = new UserModelOLD();
     }
 
     /**

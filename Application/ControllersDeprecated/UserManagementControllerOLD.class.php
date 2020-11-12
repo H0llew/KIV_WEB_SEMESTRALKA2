@@ -21,7 +21,7 @@ class UserManagementControllerOLD implements IController
         require_once(DIR_MODELS . "/UserModel.class.php");
         require_once(DIR_MODELS . "/ArticlesModel.class.php");
         require_once(DIR_MODELS . "/RevModel.class.php");
-        $this->userDB = new UserModel();
+        $this->userDB = new UserModelOLD();
         $this->articlesDB = new ArticlesModel();
         $this->revDB = new RevModel($this->articlesDB);
     }

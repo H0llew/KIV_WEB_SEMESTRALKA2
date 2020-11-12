@@ -105,7 +105,7 @@ class PageTemplate
                             ?>
                             <!-- admin -->
                             <li class=" nav-item">
-                                <a class="nav-link custom-btn-primary" href="#">Admin</a>
+                                <a class="nav-link custom-btn-primary" href="index.php?page=admin">Admin</a>
                             </li>
                             <?php
                         }
@@ -118,7 +118,8 @@ class PageTemplate
                         </li>
                         <!-- odhlasit se -->
                         <li class="nav-item">
-                            <a class="nav-link custom-btn-primary" href="#">Odhlásit se</a>
+                            <a class="nav-link custom-btn-primary" href="index.php?page=login&action=logout">Odhlásit
+                                se</a>
                         </li>
                         <?php
                     } else {

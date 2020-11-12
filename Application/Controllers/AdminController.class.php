@@ -8,6 +8,15 @@ require_once("IController.interface.php");
 class AdminController implements IController
 {
 
+    // fce s databazi pro prihlasovani uzivatele
+    private $userModel;
+
+    public function __construct()
+    {
+        require_once(DIR_MODELS . "/UserModel.class.php");
+        $this->userModel = new UserModel();
+    }
+
     /**
      * Preda kod stranky ve stringu
      *
@@ -19,20 +28,31 @@ class AdminController implements IController
         global $tplData;
         $tplData = [];
 
-        $tplData["isLogged"] = false;
-        $tplData["isAdmin"] = false;
+        $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
+        $tplData["isAdmin"] = $this->userModel->isUserAdmin();
 
-        $tplData["page"] = 1;
+        $this->checkPOST();
 
-        $tplData["users"] = array(
-            0 => array(
-                "jmeno" => "jmeno",
-                "prijmeni" => "prijmeni",
-                "email" => "email",
-                "role" => "role"
-            )
-        );
+        $tplData["page"] = $this->checkPage();
+        if ($tplData["page"] == 0) {
+            $tplData["userWeight"] = $this->userModel->getUserRoleWeight();
+            if (!isset($tplData["sort"]))
+                $tplData["sort"] = "vaha";
+            $tplData["users"] = $this->userModel->getAllUsers(0, $tplData["sort"]);
+            $tplData["itemsPerPage"] = 1;
+            $tplData["pages"] = count($tplData["users"]) % $tplData["itemsPerPage"];
+        }
 
+        /**
+         * $tplData["users"] = array(
+         * 0 => array(
+         * "jmeno" => "jmeno",
+         * "prijmeni" => "prijmeni",
+         * "email" => "email",
+         * "role" => "role"
+         * )
+         * );
+         */
         $tplData["dismissedArticles"] = array(
             0 => array(
                 "nazev" => "TEST NÁZEV",
@@ -69,5 +89,42 @@ class AdminController implements IController
         ob_start();
         require(DIR_VIEWS . "/AdminTemplate.tpl.php");
         return ob_get_clean();
+    }
+
+    public function checkPage()
+    {
+        if (isset($_GET["view"]))
+            return $_GET["view"];
+        return 0;
+    }
+
+    public function checkPOST()
+    {
+        global $tplData;
+
+        if (!isset($_POST["action"]))
+            return;
+
+        if ($_POST["action"] == "deleteUser")
+            $this->checkIfDelete();
+
+        if ($_POST["action"] == "sort")
+            $tplData["sort"] = $_POST["sort"];
+    }
+
+    public function checkIfDelete()
+    {
+        if (!isset($_POST["id"]))
+            return false;
+
+        return $this->userModel->deleteUser($_POST["id"]);
+    }
+
+    public function checkIfSort()
+    {
+        if (!isset($_POST["sort"]))
+            return null;
+
+        return $_POST["sort"];
     }
 }

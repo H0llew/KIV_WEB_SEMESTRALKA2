@@ -19,7 +19,7 @@ class AdminControllerOLD implements IController
         require_once(DIR_MODELS . "/UserModel.class.php");
         require_once(DIR_MODELS . "/ArticlesModel.class.php");
         require_once(DIR_MODELS . "/RevModel.class.php");
-        $this->userDB = new UserModel();
+        $this->userDB = new UserModelOLD();
         $this->articleDB = new ArticlesModel();
         $this->reviewDB = new RevModel();
     }

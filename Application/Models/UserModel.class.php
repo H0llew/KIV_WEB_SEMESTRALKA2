@@ -2,110 +2,98 @@
 
 require_once "DatabaseModel.class.php";
 require_once "SessionsModel.class.php";
-require_once "RoleModel.class.php";
 
 /**
- * Obsahuje funkce pro praci s tabulkou obsahujici uzivatele aplikace
+ * Obsahuje fce pro databazove operace tykajici se uzivatele
  */
 class UserModel extends DatabaseModel
 {
-    private $table_users = TABLE_UZIVATEL;
-
-    private $roleDB;
-
     private $session;
 
-    public function __construct()
+    public function __construct(PDO $pdo = null)
     {
-        parent::__construct();
+        $conn = $pdo;
+        if ($pdo == null)
+            $conn = new PDO("mysql:host=" . DB_SERVER . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+        parent::__construct($conn);
+
         $this->session = new SessionsModel();
-
-        $this->roleDB = new RoleModel();
     }
 
-    // public
+    // obecne
 
     /**
-     * Metoda zaregistruje nového uživatele
+     * Vrati klic prihlaseneho uzivatele
      *
-     * @param string $email email
-     * @param string $password heslo
-     * @param string $name jméno
-     * @param string $surname přijmení
-     * @return bool true pokud se bovedlo registrovat nového uživatele
+     * @return int klic
      */
-    public function registerNewUser(string $email, string $password, string $name, string $surname): bool
+    public function getUserID(): int
     {
-        if ($this->emailExists($email))
-            return false;
+        if (!$this->isUserLoggedIn())
+            return -1;
 
-        return $this->addNewUser($email, $password, $name, $surname);
+        return $_SESSION[SESSION_USER_KEY];
     }
 
-    /**
-     * Prihlasi uzivatele
-     *
-     * @param string $email email
-     * @param string $password heslo
-     * @return bool true -> pokud se uzivatele podarilo prihlasit
-     */
-    public function loginUser(string $email, string $password): bool
-    {
-        $whereStatement = "email='{$email}'";
-        $user = $this->selectFromTable($this->table_users, $whereStatement);
-
-        if (empty($user))
-            return false;
-
-        if (!(password_verify($password, $user[0]['heslo'])))
-            return false;
-
-        $_SESSION[SESSION_USER_KEY] = $user[0]['id_uzivatel'];
-        return true;
-    }
+    // stav uzivatele
 
     /**
-     * Prihlasi uzivatele
+     * Je uzivatel prihlasen?
      *
-     * @return bool true -> pokud se podarilo uzivatele prihlasit
+     * @return bool true -> pokud ano
      */
     public function isUserLoggedIn(): bool
     {
         return isset($_SESSION[SESSION_USER_KEY]);
     }
 
+    /**
+     * Je uzivatel admin?
+     *
+     * @return bool ano je ,ne není
+     */
     public function isUserAdmin(): bool
     {
-        $user = $this->getLoggedUserData();
-        if ($user == null)
-            return false;
-
-        if ($this->roleDB->getRoleWeight($user["id_pravo"] >= 10))
+        $weight = $this->getUserRoleWeight();
+        if ($weight >= 10)
             return true;
-
         return false;
     }
-
-    public function isUserReviewer(): bool
-    {
-        $user = $this->getLoggedUserData();
-        if ($user == null)
-            return false;
-
-        if ($this->roleDB->getRoleWeight($user["id_pravo"] >= 5))
-            return true;
-
-        return false;
-    }
-
 
     /**
-     * Odhlasi uzivatele
+     * Je uzivatel recenzent
+     *
+     * @return bool ano je, ne není
      */
-    public function logoutUser()
+    public function isUserReviewer(): bool
     {
-        unset($_SESSION[SESSION_USER_KEY]);
+        $weight = $this->getUserRoleWeight();
+        if ($weight >= 5)
+            return true;
+        return false;
     }
+
+    /**
+     * Vrati vahu uzivatelske role
+     *
+     * @return mixed
+     */
+    public function getUserRoleWeight()
+    {
+        //SELECT vaha FROM mjakubas_uzivatel, mjakubas_pravo WHERE mjakubas_uzivatel.id_uzivatel=1 AND mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo
+
+        $userID = $this->getUserID();
+        if ($userID == -1)
+            return -1;
+        $whatStatement = "vaha";
+        $tableStatement = TABLE_UZIVATEL . ", " . TABLE_PRAVO;
+        $whereStatement = TABLE_UZIVATEL . ".id_uzivatel={$userID} AND " . TABLE_UZIVATEL . ".id_pravo=" . TABLE_PRAVO . ".id_pravo";
+
+        $res = $this->selectFromTable($tableStatement, $whereStatement, "", $whatStatement);
+        return $res[0][0];
+    }
+
+    // data uzivatele
 
     /**
      * Vrati data prihlaseneho uzivatele
@@ -115,117 +103,78 @@ class UserModel extends DatabaseModel
     public function getLoggedUserData()
     {
         if (!$this->isUserLoggedIn())
-            return null;
+            return [];
 
-        $user_id = $_SESSION[SESSION_USER_KEY];
-        if ($user_id == null) {
-            $this->logoutUser();
-            return null;
+        $user_id = $this->getUserID();
+        if ($user_id == -1) {
+            unset($_SESSION[SESSION_USER_KEY]);
+            return [];
         }
 
         $whereStatement = "id_uzivatel='{$user_id}'";
-        $userData = $this->selectFromTable($this->table_users, $whereStatement);
+        $userData = $this->selectFromTable(TABLE_UZIVATEL, $whereStatement);
         if (empty($userData))
-            return null;
+            return [];
 
+        $whatStatement = "nazev";
+        $tableStatement = TABLE_UZIVATEL . ", " . TABLE_PRAVO;
+        $whereStatement = TABLE_UZIVATEL . ".id_uzivatel={$user_id} AND " . TABLE_PRAVO . ".id_pravo={$userData[0]["id_pravo"]}";
+
+        $res = $this->selectFromTable($tableStatement, $whereStatement, "", $whatStatement);
+
+        $userData[0]["role"] = $res[0][0];
         return $userData[0];
     }
 
     /**
-     * Existuje zadany email v databazi?
+     * Vrati data prihlasenego uzivatele
      *
      * @param string $email email
-     * @return bool true -> pokud exituje zadany email v databazi
+     * @param string $jmeno jmeno
+     * @param string $prijmeni prihlaseni
+     * @param string $heslo heslo
+     * @return bool true -> pokud se povedlo zmenit data
      */
-    public function emailExists(string $email): bool
+    public function updateUserData(string $email, string $jmeno, string $prijmeni, string $heslo): bool
     {
-        $whereStatement = "email='{$email}'";
-        $res = $this->selectFromTable($this->table_users, $whereStatement);
-
-        if (empty($res))
+        if (!$this->isUserLoggedIn())
             return false;
 
-        return true;
+        // zjisti user id
+        $userID = $this->getUserID();
+        if ($userID == -1)
+            return false;
+
+        $heslo = password_hash($heslo, PASSWORD_DEFAULT);
+
+        $whereStatement = "id_uzivatel={$userID}";
+        $updateStatementWithValues = "email='{$email}', jmeno='{$jmeno}', prijmeni='{$prijmeni}', heslo='{$heslo}'";
+
+        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement);
     }
-
-    public function getAllUsers()
-    {
-        if (!$this->isUserAdmin())
-            return null;
-
-        return $this->selectFromTable($this->table_users, "", "");
-    }
-
-    public function getAllReviewers()
-    {
-        if (!$this->isUserAdmin())
-            return null;
-
-        $users = $this->selectFromTable($this->table_users, "", "");
-        if (empty($users))
-            return $users;
-
-
-        $res = [];
-        foreach ($users as $row) {
-            if ($this->roleDB->getRoleWeight($row["id_pravo"]) >= 5) {
-                array_push($res, $row);
-            }
-        }
-
-        return $res;
-    }
-
-    // private
 
     /**
-     * Prida noveho uzivatele do tabulky databaze
+     * Vrati vsechny uzivatele splnujici minimalni vahu
      *
-     * @param string $email email
-     * @param string $password heslo
-     * @param string $name jmeno
-     * @param string $surname prijmeni
-     * @param int $role prava
-     * @return bool true -> pokud se podařilo přidat noveho uzivatele
+     * @param int $minWeight min vaha
+     * @return array
      */
-    private function addNewUser(string $email, string $password, string $name, string $surname, int $role = 4): bool
+    public function getAllUsers(int $minWeight = 0, string $sortBy = "")
     {
-        $password = password_hash($password, PASSWORD_BCRYPT);
+        //SELECT id_uzivatel, mjakubas_uzivatel.id_pravo, email, jmeno, prijmeni, nazev, vaha FROM mjakubas_uzivatel, mjakubas_pravo
+        // WHERE mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo
 
-        $insertStatement = "email, heslo, jmeno, prijmeni, id_pravo";
-        $insertValues = "'{$email}', '{$password}', '{$name}', '{$surname}', $role";
+        $whatStatement = "id_uzivatel, mjakubas_uzivatel.id_pravo, email, jmeno, prijmeni, nazev, vaha";
+        $tableStatement = TABLE_UZIVATEL . ", " . TABLE_PRAVO;
+        $whereStatement = "mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo AND vaha>={$minWeight}";
 
-        return $this->insertIntoTable($this->table_users, $insertStatement, $insertValues);
+        return $this->selectFromTable($tableStatement, $whereStatement, $sortBy, $whatStatement);
     }
 
-    // testovací metody
+    // vymaz
 
-    /*
-    private function getAllUsers()
+    public function deleteUser(int $id)
     {
-        return $this->selectFromTable($this->table_users, "", "id_uzivatel");
+        $this->deleteFromTable(TABLE_UZIVATEL, "id_uzivatel={$id}");
     }
-
-    public function dumpAllUsers()
-    {
-        var_dump($this->getAllUsers());
-    }
-
-    public function addTestUser()
-    {
-        echo $this->addNewUser("testA@testA.testA", "test", "testJmenoA", "TestPrijmeniA", 2);
-        echo $this->addNewUser("test@test.test", "test", "testJmeno", "TestPrijmeni");
-    }
-
-    public function checkEmail()
-    {
-        echo $this->emailExists("test@test.test");
-        echo $this->emailExists("nope");
-    }
-
-    public function testLogin()
-    {
-        return $this->loginUser("test@test.test", "test");
-    }
-    */
 }

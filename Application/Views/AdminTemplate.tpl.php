@@ -34,7 +34,7 @@ $pageContent = new class {
         <?php
     }
 
-    public function getUserManagement(array $users)
+    public function getUserManagement(array $users, int $userWeight)
     {
         ?>
         <div class="card">
@@ -42,6 +42,21 @@ $pageContent = new class {
             <div class="card-subtitle text-center custom-text-secondary">Seznam všech uživatelů aplikace.
             </div>
             <div class="card-body">
+                <div class="py-4">
+                    <form action="" method="POST">
+                        <label for="sort">Řadit podle</label>
+                        <select name="sort" id="sort">
+                            <option value="jmeno">Jméno</option>
+                            <option value="prijmeni">Přijmení</option>
+                            <option value="email">Email</option>
+                            <option value="vaha">Role</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary custom-btn-secondary" id="sort" name="action"
+                                value="sort">
+                            Seřadit
+                        </button>
+                    </form>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
@@ -50,6 +65,7 @@ $pageContent = new class {
                             <th>Přijmení</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody class="custom-text-secondary">
@@ -60,20 +76,29 @@ $pageContent = new class {
                                 <td><?php echo $row["jmeno"] ?></td>
                                 <td><?php echo $row["prijmeni"] ?></td>
                                 <td><?php echo $row["email"] ?></td>
-                                <td><?php echo $row["role"] ?></td>
+                                <td><?php echo $row["nazev"] ?></td>
+                                <?php
+                                if ($row["vaha"] < $userWeight) {
+                                    ?>
+                                    <td>
+                                        <form action="" method="POST">
+                                            <input type="hidden" name="id" id="id"
+                                                   value="<?php echo $row["id_uzivatel"] ?>">
+                                            <button class="btn btn-primary custom-btn-secondary" type="submit"
+                                                    name="action" id="action" value="deleteUser">
+                                                SMAZAT!
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <?php
+                                }
+                                ?>
                             </tr>
                             <?php
                         }
                         ?>
                         </tbody>
                     </table>
-                    <ul class="pagination">
-                        <li class="page-item"><a class="page-link custom-btn-secondary" href="#">Předchozí</a></li>
-                        <li class="page-item"><a class="page-link custom-btn-primary" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link custom-btn-primary" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link custom-btn-primary" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link custom-btn-secondary" href="#">Další</a></li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -436,8 +461,7 @@ $pageContent = new class {
     {
         ?>
         <div class="card">
-            <div class="card-title text-center py-2 custom-text-primary"><h4>Příspěvky čekající na zrecenzování a
-                    schvální</h4></div>
+            <div class="card-title text-center py-2 custom-text-primary"><h4>Potvrzené příspěvky</h4></div>
             <div class="card-subtitle text-center custom-text-secondary">Příspěvky čekající na zrecenzování a schváení
             </div>
             <div class="card-body">
@@ -612,8 +636,7 @@ $pageContent = new class {
     {
         ?>
         <div class="card">
-            <div class="card-title text-center py-2 custom-text-primary"><h4>Příspěvky čekající na zrecenzování a
-                    schvální</h4></div>
+            <div class="card-title text-center py-2 custom-text-primary"><h4>Zamítnuté příspěvky</h4></div>
             <div class="card-subtitle text-center custom-text-secondary">Příspěvky čekající na zrecenzování a schváení
             </div>
             <div class="card-body">
@@ -622,6 +645,7 @@ $pageContent = new class {
                         <thead>
                         <tr class="custom-text-primary">
                             <th>Název</th>
+                            <th>Autor</th>
                             <th>Datum vložení</th>
                             <th></th>
                             <th></th>
@@ -634,23 +658,24 @@ $pageContent = new class {
                             ?>
                             <tr>
                                 <td><?php echo $row["nazev"] ?></td>
+                                <td><?php echo $row["userName"] ?></td>
                                 <td><?php echo $row["datum"] ?></td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticleRevs<?php echo $count ?>">
+                                            data-target="#textArticleRevsD<?php echo $count ?>">
                                         Hodnocení
                                     </button>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticle<?php echo $count ?>">
+                                            data-target="#textArticleD<?php echo $count ?>">
                                         Podrobnosti
                                     </button>
                                 </td>
                             </tr>
-                            <div class="modal" id="textArticle<?php echo $count ?>">
+                            <div class="modal" id="textArticleD<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -659,46 +684,28 @@ $pageContent = new class {
                                         </div>
                                         <div class="modal-body">
                                             <!-- forma -->
-                                            <form enctype="multipart/form-data" action="" method="POST">
-                                                <div class="form-group">
-                                                    <label for="fheading" class="custom-text-secondary">Název</label>
-                                                    <input type="text" name="fheading" class="form-control"
-                                                           id="fabstract" value="<?php echo $row["nazev"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fdate" class="custom-text-secondary">Datum
-                                                        nahrání</label>
-                                                    <input type="text" name="fdate" class="form-control"
-                                                           id="fdate" value="<?php echo $row["datum"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fabstract"
-                                                           class="custom-text-secondary">Abstrakt</label>
-                                                    <textarea id="fabstract" name="fabstract" class="form-control"
-                                                              rows="10"
-                                                              cols="50"
-                                                              readonly><?php echo $row["abstrakt"] ?></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fname" class="custom-text-secondary">Autor</label>
-                                                    <input type="text" name="fname" class="form-control"
-                                                           id="fname"
-                                                           placeholder="<?php echo $row["userName"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <input type="hidden" id="ffilePath" name="ffilePath"
-                                                           value="<?php echo $row["soubor"] ?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
-                                                    <a href="<?php echo $row["soubor"] ?>"
-                                                       download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
-                                                        článek</a>
-                                                </div>
-                                            </form>
+                                            <div>
+                                                <p><span>Název: </span><?php echo $row["nazev"] ?></p>
+                                            </div>
+                                            <div class="form-text custom-text-secondary">
+                                                <p><span>Autor: </span><?php echo $row["userName"] ?></p>
+                                            </div>
+                                            <div>
+                                                <p><span>Datum nahrání: </span><?php echo $row["datum"] ?></p>
+                                            </div>
+                                            <div>
+                                                <p><span>Abstrakt: </span><?php echo $row["abstrakt"] ?></p>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="hidden" id="ffilePath" name="ffilePath"
+                                                       value="<?php echo $row["soubor"] ?>">
+                                            </div>
+                                            <div class="form-group">
+                                                <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
+                                                <a href="<?php echo $row["soubor"] ?>"
+                                                   download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
+                                                    článek</a>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-danger custom-btn-secondary"
@@ -709,7 +716,7 @@ $pageContent = new class {
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal" id="textArticleRevs<?php echo $count ?>">
+                            <div class="modal" id="textArticleRevsD<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -801,11 +808,13 @@ $pageTpl->getHead("test");
         <?php
         switch ($tplData["page"]) {
             case 0:
-                $pageContent->getUserManagement($tplData["users"]);
+                $pageContent->getUserManagement($tplData["users"], $tplData["userWeight"]);
                 break;
             case 1:
                 $pageContent->getAssignRev($tplData["dismissedArticles"]);
                 $pageContent->getAssignedButNotAprooved($tplData["dismissedArticles"]);
+                $pageContent->getAssignedAndApproved($tplData["dismissedArticles"]);
+                $pageContent->getDismissed($tplData["dismissedArticles"]);
                 break;
         }
         ?>

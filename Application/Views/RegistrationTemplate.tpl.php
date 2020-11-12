@@ -9,8 +9,9 @@ $pageTpl = new PageTemplate();
 global $tplData;
 //pouzivana data
 //$tplData["isLogged"];  // je prihlasen?
-//$tplData["registrationSuccessful"]; // prihlaseni uspesne?
+//$tplData["registrationSuccessful"]; // regisrace uspesna?
 //$tplData["isAdmin"];  // je uzivatel admin?
+//$tplData["emailTaken"]; // je email zabran?
 
 // metody stranky
 $pageContent = new class {
@@ -49,7 +50,7 @@ $pageContent = new class {
                 <p id="ctext" class="text-warning py-0" style="font-size: small; display: none"> *zadaná hesla musí být
                     stejná </p>
             </div>
-            <button type="submit" name="action" id="register" value="register"
+            <button type="submit" name="action" id="register" value="registration"
                     class="btn btn-light w-100 py-2 custom-btn-submit-long" disabled>
                 Registrovat se
             </button>
@@ -141,7 +142,7 @@ $pageTpl->getHead("test");
             if ($tplData["registrationSuccessful"]) {
                 $pageContent->showSuccessfulRegistration();
             } else {
-                if ($tplData["emailTaken"]) {
+                if (!$tplData["emailTaken"]) {
                     $pageContent->showRegistrationFailed();
                 } else {
                     $pageContent->showEmailTaken();
@@ -151,8 +152,6 @@ $pageTpl->getHead("test");
         }
         ?>
     </div>
-    <?php
-    ?>
     </body>
 <?php
 $pageTpl->getEnd();

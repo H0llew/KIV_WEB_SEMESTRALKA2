@@ -1,7 +1,7 @@
 <?php
 
 require_once "DatabaseModel.class.php";
-require_once "UserModel.class.php";
+require_once "UserModelOLD.class.php";
 require_once "ArticlesModel.class.php";
 
 class RevModel extends DatabaseModel
@@ -13,7 +13,7 @@ class RevModel extends DatabaseModel
     public function __construct($articleDB = null)
     {
         parent::__construct();
-        $this->userDB = new UserModel();
+        $this->userDB = new UserModelOLD();
         $this->articleDB = $articleDB;
     }
 
