@@ -7,20 +7,6 @@ require_once("IController.interface.php");
  */
 class AdminController implements IController
 {
-    /** instance tabulky s uzivateli */
-    private $userDB;
-    private $articleDB;
-    private $reviewDB;
-
-    public function __construct()
-    {
-        require_once(DIR_MODELS . "/UserModel.class.php");
-        require_once(DIR_MODELS . "/ArticlesModel.class.php");
-        require_once(DIR_MODELS . "/RevModel.class.php");
-        $this->userDB = new UserModel();
-        $this->articleDB = new ArticlesModel();
-        $this->reviewDB = new RevModel();
-    }
 
     /**
      * Preda kod stranky ve stringu
@@ -32,48 +18,56 @@ class AdminController implements IController
     {
         global $tplData;
         $tplData = [];
-        // nazev
-        $tplData["title"] = $pageTitle;
-        // prihlaseni
-        $tplData["isLogged"] = $this->userDB->isUserLoggedIn();
 
-        $tplData["isAdmin"] = $this->userDB->isUserAdmin();
-        $tplData["notAArticles"] = $this->articleDB->getNotAssignedArticles();
-        $tplData["notReviewedArticles"] = $this->articleDB->getAssignedButNoValidArticles();
-        $tplData["deniedArticles"] = []; //$this->articleDB->getDeniedAssignedArticles();
-        $tplData["reviewedArticles"] = $this->articleDB->getAssignedBAndValidArticles();
+        $tplData["isLogged"] = false;
+        $tplData["isAdmin"] = false;
 
-        $tplData["reviewers"] = $this->userDB->getAllReviewers();
+        $tplData["page"] = 1;
 
-        //get uzivatele
-        $users = $this->userDB->getAllUsers();
-        if (!empty($users))
-            $tplData["users"] = $users;
+        $tplData["users"] = array(
+            0 => array(
+                "jmeno" => "jmeno",
+                "prijmeni" => "prijmeni",
+                "email" => "email",
+                "role" => "role"
+            )
+        );
 
-        $this->checkIfDeny();
-        $this->checkIfAssign();
+        $tplData["dismissedArticles"] = array(
+            0 => array(
+                "nazev" => "TEST NÁZEV",
+                "datum" => "TEST DATUM",
+                "status" => "TEST STATUS",
+                "abstrakt" => "TEST ABSTRAKT",
+                "userName" => "TEST USERNAME",
+                "soubor" => "TEST SOUBOR",
+
+                "hodnoceni0" => array(
+                    "autor" => "TEST AUTOR",
+                    "krit1" => "KRIT 1",
+                    "krit2" => "KRIT 2",
+                    "krit3" => "KRIT 3",
+                    "zprava" => "TEST ZPRAVA"
+                ),
+                "hodnoceni1" => array(
+                    "autor" => "TEST AUTOR",
+                    "krit1" => "KRIT 1",
+                    "krit2" => "KRIT 2",
+                    "krit3" => "KRIT 3",
+                    "zprava" => "TEST ZPRAVA"
+                ),
+                "hodnoceni2" => array(
+                    "autor" => "TEST AUTOR",
+                    "krit1" => "KRIT 1",
+                    "krit2" => "KRIT 2",
+                    "krit3" => "KRIT 3",
+                    "zprava" => "TEST ZPRAVA"
+                )
+            )
+        );
 
         ob_start();
         require(DIR_VIEWS . "/AdminTemplate.tpl.php");
         return ob_get_clean();
     }
-
-    public function checkIfDeny()
-    {
-        if (true)//!$_POST["deny"])
-            return false;
-
-        $this->articleDB->changeStatus($_POST["id"], 2);
-    }
-
-    public function checkIfAssign()
-    {
-        if (isset($_POST["assign"])) {
-            $value = $_POST["assign"];
-            $review = $_POST["frecenzent"];
-
-            $this->reviewDB->createNewEmptyReview($_POST["frecenzent"], $_POST["assign"]);
-        }
-    }
-
 }
