@@ -46,16 +46,24 @@ $pageContent = new class {
                             <tr>
                                 <td><?php echo $row["nazev"] ?></td>
                                 <td><?php echo $row["datum"] ?></td>
-                                <td><?php echo $row["status"] ?></td>
+                                <td>
+                                    <?php
+                                    if ($row["status"] == 0) {
+                                        echo "Příspěvek čeká na přiřazení recenzentů";
+                                    } else {
+                                        echo "Příspěvek čeká na zrecenzování od přiřazených recenzentů";
+                                    }
+                                    ?>
+                                </td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticle<?php echo $count ?>">
+                                            data-target="#textArticleWaiting<?php echo $count ?>">
                                         Podrobnosti
                                     </button>
                                 </td>
                             </tr>
-                            <div class="modal" id="textArticle<?php echo $count ?>">
+                            <div class="modal" id="textArticleWaiting<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -71,16 +79,13 @@ $pageContent = new class {
                                                            id="fabstract" value="<?php echo $row["nazev"] ?>"
                                                            required>
                                                 </div>
-                                                <div class="form-text custom-text-secondary">
-                                                    <p>Autor: <?php echo $row["userName"] ?> </p>
+                                                <div class="py-2"><span
+                                                            class="custom-text-secondary">Autor: </span><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?>
                                                 </div>
-                                                <div class="form-group">
-                                                    <label for="fdate" class="custom-text-secondary">Datum
-                                                        nahrání</label>
-                                                    <input type="text" name="fdate" class="form-control"
-                                                           id="fdate" value="<?php echo $row["datum"] ?>"
-                                                           readonly>
+                                                <div class="py-2"><span
+                                                            class="custom-text-secondary">Datum: </span><?php echo $row["datum"] ?>
                                                 </div>
+                                                <input type="hidden" name="fdate" id="fdate" value="<?php echo $row["datum"] ?>">
                                                 <div class="form-group">
                                                     <label for="fabstract"
                                                            class="custom-text-secondary">Abstrakt</label>
@@ -113,11 +118,22 @@ $pageContent = new class {
                                                     </small>
                                                 </div>
                                                 <div class="d-flex justify-content-center">
-                                                    <button type="submit" class="btn btn-primary custom-btn-primary"
-                                                            name="action"
-                                                            id="article" value="edit">
-                                                        Editovat příspěvek
-                                                    </button>
+                                                    <?php
+                                                    if ($row["status"] == 0) {
+                                                        ?>
+                                                        <button type="submit" class="btn btn-primary custom-btn-primary"
+                                                                name="action"
+                                                                id="article" value="edit">
+                                                            Editovat příspěvek
+                                                        </button>
+                                                        <?php
+                                                    } else {
+                                                        ?>
+                                                        <span class="py-2 custom-text-secondary">Příspěvěk nelze editovat,
+                                                            protože je již přiřazen recenztům k zrecenzování</span>
+                                                        <?php
+                                                    }
+                                                    ?>
                                                 </div>
                                             </form>
                                         </div>
@@ -532,7 +548,7 @@ $pageTpl->getHead("test");
         ?>
         <hr>
         <?php
-        $pageContent->getNotVerifiedArticles($tplData["notVerifiedArticles"]);
+        $pageContent->getNotVerifiedArticles($tplData["userArticles"]["waiting"]);
         ?>
         <hr>
         <?php

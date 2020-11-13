@@ -22,7 +22,7 @@ class UserManagementControllerOLD implements IController
         require_once(DIR_MODELS . "/ArticlesModel.class.php");
         require_once(DIR_MODELS . "/RevModel.class.php");
         $this->userDB = new UserModelOLD();
-        $this->articlesDB = new ArticlesModel();
+        $this->articlesDB = new ArticlesModelOLD();
         $this->revDB = new RevModel($this->articlesDB);
     }
 
@@ -90,6 +90,7 @@ class UserManagementControllerOLD implements IController
      *
      * @return bool
      */
+    /*
     private function checkIfUpload()
     {
         if (!($_POST["action"] == "upload"))
@@ -121,6 +122,7 @@ class UserManagementControllerOLD implements IController
         // vloz clanke do db tabulky
         return $this->articlesDB->createNewArticle($uploadfile, $_POST["fheading"], $_POST["fabstract"], $date);
     }
+    */
 
     private function checkIfEdit()
     {

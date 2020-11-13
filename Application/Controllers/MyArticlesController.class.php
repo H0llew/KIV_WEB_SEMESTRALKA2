@@ -7,6 +7,18 @@ require_once("IController.interface.php");
  */
 class MyArticlesController implements IController
 {
+    // fce s databazi pro prihlasovani uzivatele
+    private $userModel;
+    // fce s dazabazi pro prispevky
+    private $articleModel;
+
+    public function __construct()
+    {
+        require_once(DIR_MODELS . "/UserModel.class.php");
+        $this->userModel = new UserModel();
+        require_once(DIR_MODELS . "/ArticleModel.class.php");
+        $this->articleModel = new ArticleModel($this->userModel->getPDO());
+    }
 
     /**
      * Preda kod stranky ve stringu
@@ -19,8 +31,10 @@ class MyArticlesController implements IController
         global $tplData;
         $tplData = [];
 
-        $tplData["isLogged"] = false;
-        $tplData["isAdmin"] = false;
+        $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
+        $tplData["isAdmin"] = $this->userModel->isUserAdmin();
+
+        // test
 
         $tplData["notVerifiedArticles"] = array(
             0 => array(
@@ -66,8 +80,82 @@ class MyArticlesController implements IController
             )
         );
 
+        // test
+
+        $this->checkPOST();
+
+        $tplData["userArticles"] = $this->articleModel->getLoggedUserArticles();
+        $tplData["userArticles"]["waiting"] = $this->assignAllArticlesStatus($tplData["userArticles"]["waiting"]);
+
         ob_start();
         require(DIR_VIEWS . "/MyArticlesTemplate.tpl.php");
         return ob_get_clean();
+    }
+
+    /**
+     * Zkontroluje POST
+     */
+    public function checkPOST()
+    {
+        if (!isset($_POST["action"]))
+            return;
+
+        if ($_POST["action"] == "edit")
+            $this->checkIfEdit();
+
+    }
+
+    /**
+     * Zkontroluje zda byl editovan prispevek
+     *
+     * @return bool true-> pokud se editace povedla
+     */
+    private function checkIfEdit()
+    {
+        if ((isset($_POST["fdate"]) && isset($_POST["ffilePath"]) && $_POST["fheading"] && $_POST["fabstract"]))
+            return false;
+
+        $userID = $this->userModel->getUserID();
+        if ($userID == -1)
+            return false;
+
+        if (!empty($_FILES["ffile"]["name"])) {
+            if (!(move_uploaded_file($_FILES["ffile"]["tmp_name"], $_POST["ffilePath"])))
+                return false; // soubor nebyl nahran pomoci POST metody
+        }
+
+        return $this->articleModel->updateSelectedArticle($_POST["fdate"], $_POST["ffilePath"], $_POST["fheading"], $_POST["fabstract"]);
+    }
+
+    // utils
+
+    /**
+     * Priradi vsem clankum novy status a to zda maji recenzenta nebo ne
+     *
+     * @param $articles array clanky
+     */
+    private function assignAllArticlesStatus(array $articles)
+    {
+        for ($i = 0; $i < count($articles); $i++) {
+            $articles[$i] = $this->assignArticleStatus($articles[$i]);
+        }
+
+        return $articles;
+    }
+
+    /**
+     * Priradi prispevku novou hodnotu a to jeho status (1 = existuje recenzet; 0 neexistuje recenzet)
+     *
+     * @param $articleID int clanek
+     */
+    private function assignArticleStatus($articleEntry)
+    {
+        $res = $this->articleModel->existArticleReview($articleEntry["id_clanek"]);
+        if ($res)
+            $articleEntry["status"] = "1";
+        else
+            $articleEntry["status"] = "0";
+
+        return $articleEntry; // nebere jen jako referenci ?
     }
 }

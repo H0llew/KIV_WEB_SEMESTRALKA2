@@ -2,7 +2,7 @@
 
 require_once "DatabaseModel.class.php";
 require_once "UserModelOLD.class.php";
-require_once "ArticlesModel.class.php";
+require_once "ArticlesModelOLD.class.php";
 
 class RevModel extends DatabaseModel
 {
@@ -18,6 +18,7 @@ class RevModel extends DatabaseModel
     }
 
     // zjisti mi zda existuje recenze k clanku (v jakemkoliv stadiu)
+    /*
     public function existReview(int $id_clanek)
     {
         $review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
@@ -25,6 +26,7 @@ class RevModel extends DatabaseModel
             return false;
         return true;
     }
+    */
 
     public function existValidReview(int $id_clanek)
     {
@@ -36,6 +38,7 @@ class RevModel extends DatabaseModel
         return false;
     }
 
+    /*
     public function createNewEmptyReview(int $id_user, int $id_clanek)
     {
         $insertStatement = "id_uzivatel, id_clanek, hodnoceni, zprava";
@@ -43,6 +46,7 @@ class RevModel extends DatabaseModel
 
         return $this->insertIntoTable($this->table_reviews, $insertStatement, $insertValues);
     }
+    */
 
     public function updateReview(int $id_user, int $id_clanek, int $hodnoceni, string $zprava)
     {

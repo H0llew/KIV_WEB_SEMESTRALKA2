@@ -7,8 +7,10 @@ require_once "RevModel.class.php";
 
 /**
  * Obsahuje funkce pro praci s tabulkou obsahujici clanky uzivatelu
+ *
+ * @deprecated stare
  */
-class ArticlesModel extends DatabaseModel
+class ArticlesModelOLD extends DatabaseModel
 {
     private $table_articles = TABLE_CLANEK;
     private $userDB;
@@ -32,6 +34,7 @@ class ArticlesModel extends DatabaseModel
      * @param string $date datum vlozeni
      * @return bool true -> pokud se podarilo vlozit novy clanke to tabulky
      */
+    /*
     public function createNewArticle(string $filePath, string $heading, string $abstract, string $date): bool
     {
         // je uzivatel prihlasen?
@@ -50,12 +53,14 @@ class ArticlesModel extends DatabaseModel
         // vytvor clanek
         return $this->addNewArticle($userID, $filePath, $heading, $abstract, $date);
     }
+    */
 
     /**
      * Vrati clanky prihlaseneho uzivatele
      *
      * @return array|null clanky uzivatele rozdelene na schvalene("approved") a neschvalene("not_approved") nebo null
      */
+    /*
     public function getLoggedUserArticles()
     {
         // je uzivatel prihlasen?
@@ -77,7 +82,9 @@ class ArticlesModel extends DatabaseModel
             "not_approved" => $notApprovedUserArticles
         );
     }
+    */
 
+    /*
     public function updateSelectedArticle(string $date, string $filePath, string $heading, string $abstract)
     {
         if (!($this->userDB->isUserLoggedIn()))
@@ -94,6 +101,7 @@ class ArticlesModel extends DatabaseModel
         // jen 1 vrati VZDY
         return $this->editArticle($articleID, $heading, $abstract);
     }
+    */
 
     public function deleteSelectedArticle()
     {
@@ -111,6 +119,7 @@ class ArticlesModel extends DatabaseModel
      *
      * @return bool true -> pokud se podařilo přidat novy clanke
      */
+    /*
     private function addNewArticle(int $userID, string $filePath, string $heading, string $abstract, string $date): bool
     {
         $insertStatement = "id_uzivatel, soubor, nazev, abstrakt, datum, schvalen";
@@ -118,6 +127,7 @@ class ArticlesModel extends DatabaseModel
 
         return $this->insertIntoTable($this->table_articles, $insertStatement, $insertValues);
     }
+    */
 
     /**
      * Vrati stranky zadaneho uzivatele nebo null pokud uzivatel neexistuje
@@ -127,6 +137,7 @@ class ArticlesModel extends DatabaseModel
      * @param string $orderByStatement serazeni podle
      * @return array neprazdne pole pokud byly nalezen clakny jinak prazdne pole
      */
+    /*
     private function getUserArticles(int $userID, string $whereStatement = "", string $orderByStatement = ""): array
     {
         $userWhereStatement = "id_uzivatel='{$userID}'";
@@ -135,6 +146,7 @@ class ArticlesModel extends DatabaseModel
 
         return $this->selectFromTable($this->table_articles, $userWhereStatement, $orderByStatement);
     }
+    */
 
     /**
      * Zmeni titulek a abstrakt clanku
@@ -144,6 +156,7 @@ class ArticlesModel extends DatabaseModel
      * @param string $abstract abstrakt
      * @return bool true-> pokud se podarilo zmeni radek tabulky
      */
+    /*
     private function editArticle(int $articleID, string $heading, string $abstract)
     {
         $updateStatementWithValues = "abstrakt='{$abstract}', nazev='{$heading}'";
@@ -151,6 +164,7 @@ class ArticlesModel extends DatabaseModel
 
         return $this->updateInTable($this->table_articles, $updateStatementWithValues, $whereStatement);
     }
+    */
 
     private function deleteArticle(int $articleID)
     {

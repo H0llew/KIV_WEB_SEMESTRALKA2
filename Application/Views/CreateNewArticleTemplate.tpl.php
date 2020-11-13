@@ -83,11 +83,8 @@ $pageContent = new class {
                                 <textarea id="fabstract" name="fabstract" class="form-control" rows="10"
                                           cols="50" required></textarea>
                             </div>
-                            <div class="form-group">
-                                <label for="fname" class="custom-text-secondary">Autor</label>
-                                <input type="text" name="fname" class="form-control"
-                                       id="fname" placeholder="<?php echo $userFullName ?>" readonly>
-                            </div>
+                            <div class="py-2"><span
+                                        class="custom-text-secondary">Autor: </span><?php echo $userFullName ?></div>
                             <div class="form-group">
                                 <label for="ffile" class="custom-text-secondary">Soubor</label>
                                 <input type="hidden" name="MAX_FILE_SIZE" value="300000000">
@@ -106,6 +103,21 @@ $pageContent = new class {
                                 </button>
                             </div>
                         </form>
+                        <script>
+                            function checkFileExt(num = "") {
+                                var file = document.getElementById("ffile" + num).value;
+                                const index = file.lastIndexOf(".");
+                                const fileExt = file.substring(index + 1, file.length);
+
+                                if (fileExt.toLowerCase() == "pdf") {
+                                    document.getElementById("ffileValidationBlock" + num).style.display = "none";
+                                    document.getElementById("article").disabled = false;
+                                } else {
+                                    document.getElementById("ffileValidationBlock" + num).style.display = "block";
+                                    document.getElementById("article").disabled = true;
+                                }
+                            }
+                        </script>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger custom-btn-secondary" data-dismiss="modal">Zavřít

@@ -23,9 +23,11 @@ $pageContent = new class {
             <div class="btn-group-vertical py-2 mx-auto">
                 <?php
                 switch ($page) {
-                    case 0: ?> <a href="#" class="btn btn-primary custom-btn-primary py-3">Správa příspěvků</a> <?php
+                    case 0: ?> <a href="index.php?page=admin&view=1" class="btn btn-primary custom-btn-primary py-3">Správa
+                        příspěvků</a> <?php
                         break;
-                    case 1: ?> <a href="#" class="btn btn-primary custom-btn-primary py-3">Správa uživatelů</a> <?php
+                    case 1: ?> <a href="index.php?page=admin&view=0" class="btn btn-primary custom-btn-primary py-3">Správa
+                        uživatelů</a> <?php
                         break;
                 }
                 ?>
@@ -66,6 +68,7 @@ $pageContent = new class {
                             <th>Email</th>
                             <th>Role</th>
                             <th></th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody class="custom-text-secondary">
@@ -80,6 +83,27 @@ $pageContent = new class {
                                 <?php
                                 if ($row["vaha"] < $userWeight) {
                                     ?>
+                                    <td>
+                                        <form action="" method="POST">
+                                            <input type="hidden" name="id" id="id"
+                                                   value="<?php echo $row["id_uzivatel"] ?>">
+
+                                            <label for="frole">Změnit roli:</label>
+                                            <select name="frole" id="frole">
+                                                <option value="<?php echo $row["id_pravo"] ?>" selected>Vyberte novou
+                                                    roli...
+                                                </option>
+                                                <option value="4">Uživatel</option>
+                                                <option value="3">Recenzent</option>
+                                                <option value="2">Admin</option>
+                                            </select>
+
+                                            <button class="btn btn-primary custom-btn-secondary" id="rolec"
+                                                    name="action" value="crole">
+                                                Potvrdit změnu
+                                            </button>
+                                        </form>
+                                    </td>
                                     <td>
                                         <form action="" method="POST">
                                             <input type="hidden" name="id" id="id"
@@ -110,7 +134,7 @@ $pageContent = new class {
 
     }
 
-    public function getAssignRev(array $articles)
+    public function getAssignRev(array $articles, array $reviewers)
     {
         //clanky ktere potrebuji priradit hodnotitele
         ?>
@@ -136,30 +160,28 @@ $pageContent = new class {
                         <tbody class="custom-text-secondary">
                         <?php
                         $count = 0;
-                        foreach ($articles
-
-                                 as $row) {
+                        foreach ($articles as $row) {
                             ?>
                             <tr>
                                 <td><?php echo $row["nazev"] ?></td>
-                                <td><?php echo $row["userName"] ?></td>
+                                <td><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?></td>
                                 <td><?php echo $row["datum"] ?></td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticle<?php echo $count ?>">
+                                            data-target="#textArticleWaiting<?php echo $count ?>">
                                         Podrobnosti
                                     </button>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticleRevs<?php echo $count ?>">
+                                            data-target="#textArticleWaitingRevs<?php echo $count ?>">
                                         Přiřadit recenzenty
                                     </button>
                                 </td>
                             </tr>
-                            <div class="modal" id="textArticle<?php echo $count ?>">
+                            <div class="modal" id="textArticleWaiting<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -168,46 +190,30 @@ $pageContent = new class {
                                         </div>
                                         <div class="modal-body">
                                             <!-- forma -->
-                                            <form enctype="multipart/form-data" action="" method="POST">
-                                                <div class="form-group">
-                                                    <label for="fheading" class="custom-text-secondary">Název</label>
-                                                    <input type="text" name="fheading" class="form-control"
-                                                           id="fabstract" value="<?php echo $row["nazev"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fdate" class="custom-text-secondary">Datum
-                                                        nahrání</label>
-                                                    <input type="text" name="fdate" class="form-control"
-                                                           id="fdate" value="<?php echo $row["datum"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fabstract"
-                                                           class="custom-text-secondary">Abstrakt</label>
-                                                    <textarea id="fabstract" name="fabstract" class="form-control"
-                                                              rows="10"
-                                                              cols="50"
-                                                              readonly><?php echo $row["abstrakt"] ?></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fname" class="custom-text-secondary">Autor</label>
-                                                    <input type="text" name="fname" class="form-control"
-                                                           id="fname"
-                                                           placeholder="<?php echo $row["userName"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <input type="hidden" id="ffilePath" name="ffilePath"
-                                                           value="<?php echo $row["soubor"] ?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
-                                                    <a href="<?php echo $row["soubor"] ?>"
-                                                       download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
-                                                        článek</a>
-                                                </div>
-                                            </form>
+                                            <div>
+                                                <p><span>Název: </span><?php echo $row["nazev"] ?></p>
+                                            </div>
+                                            <div class="form-text custom-text-secondary">
+                                                <p>
+                                                    <span>Autor: </span><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p><span>Datum nahrání: </span><?php echo $row["datum"] ?></p>
+                                            </div>
+                                            <div>
+                                                <p><span>Abstrakt: </span><?php echo $row["abstrakt"] ?></p>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="hidden" id="ffilePathWaiting" name="ffilePath"
+                                                       value="<?php echo $row["soubor"] ?>">
+                                            </div>
+                                            <div class="form-group">
+                                                <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
+                                                <a href="<?php echo $row["soubor"] ?>"
+                                                   download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
+                                                    článek</a>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-danger custom-btn-secondary"
@@ -218,7 +224,7 @@ $pageContent = new class {
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal" id="textArticleRevs<?php echo $count ?>">
+                            <div class="modal" id="textArticleWaitingRevs<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -226,35 +232,55 @@ $pageContent = new class {
                                             <h4 class="modal-title custom-text-primary">Recenzenti</h4>
                                         </div>
                                         <div class="modal-body">
-                                            <form>
+                                            <form action="" method="POST">
+                                                <input type="hidden" name="id" value="<?php echo $row["id_clanek"] ?>">
                                                 <div class="col-auto my-1">
-                                                    <label class="mr-sm-2" for="frecenzent1">Hodnotitel 1:</label>
-                                                    <select class="custom-select mr-sm-2" id="frecenzent1">
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
+                                                    <label class="mr-sm-2" for="frecenzent1-<?php echo $count ?>">Hodnotitel
+                                                        1:</label>
+                                                    <select class="custom-select mr-sm-2"
+                                                            id="frecenzent1-<?php echo $count ?>" name="rev1"
+                                                            onchange="checkRevievers<?php echo $count ?>()">
+                                                        <?php
+                                                        foreach ($reviewers as $rowR) {
+                                                            ?>
+                                                            <option value="<?php echo $rowR["id_uzivatel"] ?>"><?php echo $rowR["prijmeni"] . " " . $rowR["jmeno"] . " (" . $rowR['email'] . ")" ?></option> <?php
+                                                        }
+                                                        ?>
                                                     </select>
                                                 </div>
                                                 <div class="col-auto my-1">
-                                                    <label class="mr-sm-2" for="frecenzent2">Hodnotitel 2:</label>
-                                                    <select class="custom-select mr-sm-2" id="frecenzent2">
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
+                                                    <label class="mr-sm-2" for="frecenzent2-<?php echo $count ?>">Hodnotitel
+                                                        2:</label>
+                                                    <select class="custom-select mr-sm-2"
+                                                            id="frecenzent2-<?php echo $count ?>" name="rev2"
+                                                            onchange="checkRevievers<?php echo $count ?>()">
+                                                        <?php
+                                                        foreach ($reviewers as $rowR) {
+                                                            ?>
+                                                            <option value="<?php echo $rowR["id_uzivatel"] ?>"><?php echo $rowR["prijmeni"] . " " . $rowR["jmeno"] . " (" . $rowR['email'] . ")" ?></option> <?php
+                                                        }
+                                                        ?>
                                                     </select>
                                                 </div>
                                                 <div class="col-auto my-1">
-                                                    <label class="mr-sm-2" for="frecenzent3">Hodnotitel 3:</label>
-                                                    <select class="custom-select mr-sm-2" id="frecenzent3">
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
+                                                    <label class="mr-sm-2" for="frecenzent3-<?php echo $count ?>">Hodnotitel
+                                                        3:</label>
+                                                    <select class="custom-select mr-sm-2"
+                                                            id="frecenzent3-<?php echo $count ?>" name="rev3"
+                                                            onchange="checkRevievers<?php echo $count ?>()">
+                                                        <?php
+                                                        foreach ($reviewers as $rowR) {
+                                                            ?>
+                                                            <option value="<?php echo $rowR["id_uzivatel"] ?>"><?php echo $rowR["prijmeni"] . " " . $rowR["jmeno"] . " (" . $rowR['email'] . ")" ?></option> <?php
+                                                        }
+                                                        ?>
                                                     </select>
                                                 </div>
                                                 <div class="d-flex justify-content-center">
                                                     <button type="submit" class="btn btn-primary custom-btn-primary"
                                                             name="action"
-                                                            id="article" value="upload">
+                                                            id="articleRevAss-<?php echo $count ?>" value="assign"
+                                                            disabled>
                                                         Potvrdit Recenzenty
                                                     </button>
                                                 </div>
@@ -269,6 +295,17 @@ $pageContent = new class {
                                     </div>
                                 </div>
                             </div>
+                            <script>
+                                function checkRevievers<?php echo $count ?>() {
+                                    const rev1 = document.getElementById("frecenzent1-<?php echo $count ?>").value;
+                                    const rev2 = document.getElementById("frecenzent2-<?php echo $count ?>").value;
+                                    const rev3 = document.getElementById("frecenzent3-<?php echo $count ?>").value;
+
+                                    const btn = document.getElementById("articleRevAss-<?php echo $count ?>");
+
+                                    btn.disabled = !(rev1 !== rev2 && rev1 !== rev3 && rev2 !== rev3);
+                                }
+                            </script>
                             <?php
                             $count++;
                         }
@@ -811,7 +848,7 @@ $pageTpl->getHead("test");
                 $pageContent->getUserManagement($tplData["users"], $tplData["userWeight"]);
                 break;
             case 1:
-                $pageContent->getAssignRev($tplData["dismissedArticles"]);
+                $pageContent->getAssignRev($tplData["waiting"], $tplData["reviewers"]);
                 $pageContent->getAssignedButNotAprooved($tplData["dismissedArticles"]);
                 $pageContent->getAssignedAndApproved($tplData["dismissedArticles"]);
                 $pageContent->getDismissed($tplData["dismissedArticles"]);

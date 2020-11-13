@@ -154,25 +154,45 @@ class UserModel extends DatabaseModel
     }
 
     /**
+     * Zmeni roli uzivatele
+     *
+     * @param int $userID id uzivatele
+     * @param int $newRole nova role uzivatelel
+     * @return bool true-> poku se zmne povedla
+     */
+    public function changeUserRole(int $userID, int $newRole)
+    {
+        $whereStatement = "id_uzivatel={$userID}";
+        $updateStatementWithValues = "id_pravo='{$newRole}'";
+
+        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement);
+    }
+
+    /**
      * Vrati vsechny uzivatele splnujici minimalni vahu
      *
      * @param int $minWeight min vaha
      * @return array
      */
-    public function getAllUsers(int $minWeight = 0, string $sortBy = "")
+    public function getAllUsers(int $minWeight = 0, string $sortBy = "", int $maxWeight = 100)
     {
         //SELECT id_uzivatel, mjakubas_uzivatel.id_pravo, email, jmeno, prijmeni, nazev, vaha FROM mjakubas_uzivatel, mjakubas_pravo
         // WHERE mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo
 
         $whatStatement = "id_uzivatel, mjakubas_uzivatel.id_pravo, email, jmeno, prijmeni, nazev, vaha";
         $tableStatement = TABLE_UZIVATEL . ", " . TABLE_PRAVO;
-        $whereStatement = "mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo AND vaha>={$minWeight}";
+        $whereStatement = "mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo AND vaha>={$minWeight} AND vaha<={$maxWeight}";
 
         return $this->selectFromTable($tableStatement, $whereStatement, $sortBy, $whatStatement);
     }
 
     // vymaz
 
+    /**
+     * Vymaze z tabulky vybraneho uzivatele
+     *
+     * @param int $id
+     */
     public function deleteUser(int $id)
     {
         $this->deleteFromTable(TABLE_UZIVATEL, "id_uzivatel={$id}");
