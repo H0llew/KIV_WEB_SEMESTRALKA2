@@ -76,7 +76,7 @@ const DIR_MODELS = "Models";
 /** server databaze */
 define("DB_SERVER", "localhost");
 /** nazev databaze */
-define("DB_NAME", "web_semestralka");
+define("DB_NAME", "kiv/web_semestralka");
 /** jmeno uzivatele */
 define("DB_USER", "root");
 /** heslo uzivatele */

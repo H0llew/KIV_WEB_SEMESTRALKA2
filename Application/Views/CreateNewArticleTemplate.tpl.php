@@ -16,6 +16,11 @@ global $tplData;
 // metody stranky
 $pageContent = new class {
 
+    /**
+     * Formular a pokyny prispevku
+     *
+     * @param string $userFullName jmeno uzivatele
+     */
     public function getNewArticleSection(string $userFullName)
     {
         ?>
@@ -155,11 +160,12 @@ $pageContent = new class {
 };
 
 // webova stranka
-$pageTpl->getHead("test");
+$pageTpl->getHead($tplData["title"]);
 ?>
-    <body>
+    <body class="d-flex flex-column min-vh-100">
     <?php
     // kontex stranky
+    $pageTpl->getSpecialEvent();
     $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
     ?>
     <div class="container">
@@ -176,6 +182,9 @@ $pageTpl->getHead("test");
         }
         ?>
     </div>
+    <?php
+    $pageTpl->getFooter();
+    ?>
     </body>
 <?php
 $pageTpl->getEnd();

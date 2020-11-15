@@ -35,6 +35,8 @@ class AdminController implements IController
         $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
         $tplData["isAdmin"] = $this->userModel->isUserAdmin();
 
+        $tplData["title"] = $pageTitle;
+
         $this->checkPOST();
 
         $tplData["page"] = $this->checkPage();
@@ -47,52 +49,14 @@ class AdminController implements IController
             $tplData["pages"] = count($tplData["users"]) % $tplData["itemsPerPage"];
         }
         if ($tplData["page"] == 1) {
+
             $tplData["waiting"] = $this->getWaitingArticles();
             $tplData["reviewers"] = $this->userModel->getAllUsers(5, "", 5);
+
+            $tplData["needReview"] = $this->getNeedReviewsArticles();
+            $tplData["approved"] = $this->getArticlesWRevs(1);
+            $tplData["notApproved"] = $this->getArticlesWRevs(2);
         }
-
-        /**
-         * $tplData["users"] = array(
-         * 0 => array(
-         * "jmeno" => "jmeno",
-         * "prijmeni" => "prijmeni",
-         * "email" => "email",
-         * "role" => "role"
-         * )
-         * );
-         */
-        $tplData["dismissedArticles"] = array(
-            0 => array(
-                "nazev" => "TEST NÁZEV",
-                "datum" => "TEST DATUM",
-                "status" => "TEST STATUS",
-                "abstrakt" => "TEST ABSTRAKT",
-                "userName" => "TEST USERNAME",
-                "soubor" => "TEST SOUBOR",
-
-                "hodnoceni0" => array(
-                    "autor" => "TEST AUTOR",
-                    "krit1" => "KRIT 1",
-                    "krit2" => "KRIT 2",
-                    "krit3" => "KRIT 3",
-                    "zprava" => "TEST ZPRAVA"
-                ),
-                "hodnoceni1" => array(
-                    "autor" => "TEST AUTOR",
-                    "krit1" => "KRIT 1",
-                    "krit2" => "KRIT 2",
-                    "krit3" => "KRIT 3",
-                    "zprava" => "TEST ZPRAVA"
-                ),
-                "hodnoceni2" => array(
-                    "autor" => "TEST AUTOR",
-                    "krit1" => "KRIT 1",
-                    "krit2" => "KRIT 2",
-                    "krit3" => "KRIT 3",
-                    "zprava" => "TEST ZPRAVA"
-                )
-            )
-        );
 
         ob_start();
         require(DIR_VIEWS . "/AdminTemplate.tpl.php");
@@ -134,6 +98,9 @@ class AdminController implements IController
 
         if ($_POST["action"] == "assign")
             $this->checkIfAssign();
+
+        if ($_POST["action"] == "approve")
+            $this->checkIfApprove();
 
     }
 
@@ -193,6 +160,60 @@ class AdminController implements IController
         return $result;
     }
 
+    private function getNeedReviewsArticles()
+    {
+        $articles = $this->articleModel->getAllArticles(0);
+
+        $result = [];
+        foreach ($articles as $row) {
+
+            $has3Rev = $this->articleModel->exist3ArticleReview($row["id_clanek"]);
+            if (!$has3Rev)
+                continue;
+
+            if ($this->articleModel->existsAllValidReviews($row["id_clanek"]))
+                $row["valid"] = true;
+            else
+                $row["valid"] = false;
+
+            $revs = $this->articleModel->getArticleReviews($row["id_clanek"]);
+            $count = 1;
+            foreach ($revs as $rev) {
+                $row["hodnoceni" . $count++] = $rev;
+            }
+
+            array_push($result, $row);
+        }
+
+        return $result;
+    }
+
+    private function getArticlesWRevs(int $status)
+    {
+        $articles = $this->articleModel->getAllArticles($status);
+
+        $result = [];
+        foreach ($articles as $row) {
+
+            $has3Rev = $this->articleModel->exist3ArticleReview($row["id_clanek"]);
+            if (!$has3Rev)
+                continue;
+
+            if (!$this->articleModel->existsAllValidReviews($row["id_clanek"]))
+                return [];
+
+            $revs = $this->articleModel->getArticleReviews($row["id_clanek"]);
+            $count = 1;
+            foreach ($revs as $rev) {
+                $row["hodnoceni" . $count++] = $rev;
+            }
+
+            array_push($result, $row);
+        }
+
+        return $result;
+    }
+
     private function checkIfAssign()
     {
         if (!(isset($_POST["rev1"]) && isset($_POST["rev2"]) && isset($_POST["rev3"]) && isset($_POST["id"])))
@@ -209,5 +230,13 @@ class AdminController implements IController
             return false;
 
         return true;
+    }
+
+    private function checkIfApprove()
+    {
+        if (!isset($_POST["id"]))
+            return false;
+
+        $this->articleModel->updateArticleStatus($_POST["id"], 1);
     }
 }

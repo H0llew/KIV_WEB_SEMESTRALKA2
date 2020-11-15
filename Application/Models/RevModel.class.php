@@ -48,6 +48,7 @@ class RevModel extends DatabaseModel
     }
     */
 
+    /*
     public function updateReview(int $id_user, int $id_clanek, int $hodnoceni, string $zprava)
     {
         $updateStatementWithValues = "hodnoceni='{$hodnoceni}', zprava='{$zprava}'";
@@ -55,6 +56,7 @@ class RevModel extends DatabaseModel
 
         return $this->updateInTable($this->table_reviews, $updateStatementWithValues, $whereStatement);
     }
+    */
 
     public function getUserArticleForRev(int $id_user)
     {

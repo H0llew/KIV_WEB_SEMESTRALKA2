@@ -16,6 +16,11 @@ global $tplData;
 // metody stranky
 $pageContent = new class {
 
+    /**
+     * Zmena stranky (bud sprava uzivatelu nebo prispevku)
+     *
+     * @param int $page stranka
+     */
     public function switchPages(int $page)
     {
         ?>
@@ -36,6 +41,12 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Vrati uzivatele aplikace vsechny
+     *
+     * @param array $users uzivatelel
+     * @param int $userWeight vaha prihlaseneho uzivatele
+     */
     public function getUserManagement(array $users, int $userWeight)
     {
         ?>
@@ -129,12 +140,13 @@ $pageContent = new class {
         <?php
     }
 
-    public function getArticleManagement(array $articles)
-    {
-
-    }
-
-    public function getAssignRev(array $articles, array $reviewers)
+    /**
+     * Zobrazi prispevky cekajici na prirazeni recenzentu
+     *
+     * @param array $articles clanky
+     * @param array $reviewers recenzenti
+     */
+    public function getWaitingArticles(array $articles, array $reviewers)
     {
         //clanky ktere potrebuji priradit hodnotitele
         ?>
@@ -318,12 +330,19 @@ $pageContent = new class {
         <?php
     }
 
-    public function getAssignedButNotAprooved(array $articles)
+    /**
+     * Zobrazi prispevky ve stavu recenzovani a zrecenzovane prispevky cekajici na schvaleni
+     *
+     * @param array $articles
+     */
+    public function getNeedReviewsArticles(array $articles)
     {
+        // prispevky cekajici na zrecenzovani
         ?>
+        <!-- prispevky ktere cekaji na zrecenzovani od recenzentu -->
         <div class="card">
             <div class="card-title text-center py-2 custom-text-primary"><h4>Příspěvky čekající na zrecenzování a
-                    schvální</h4></div>
+                    schválení</h4></div>
             <div class="card-subtitle text-center custom-text-secondary">Příspěvky čekající na zrecenzování a schváení
             </div>
             <div class="card-body">
@@ -332,7 +351,9 @@ $pageContent = new class {
                         <thead>
                         <tr class="custom-text-primary">
                             <th>Název</th>
+                            <th>Autor</th>
                             <th>Datum vložení</th>
+                            <th></th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -344,23 +365,39 @@ $pageContent = new class {
                             ?>
                             <tr>
                                 <td><?php echo $row["nazev"] ?></td>
+                                <td><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?></td>
                                 <td><?php echo $row["datum"] ?></td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticleRevs<?php echo $count ?>">
+                                            data-target="#textArticleNeedRevs<?php echo $count ?>">
                                         Hodnocení
                                     </button>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticle<?php echo $count ?>">
+                                            data-target="#textArticleNeed<?php echo $count ?>">
                                         Podrobnosti
                                     </button>
                                 </td>
+                                <?php
+                                if ($row["valid"]) {
+                                    ?>
+                                    <td>
+                                        <form action="" method="POST">
+                                            <input type="hidden" name="id" value="<?php echo $row["id_clanek"] ?>">
+                                            <button type="submit" class="btn btn-primary custom-btn-secondary"
+                                                    value="approve" name="action">
+                                                Scvhálit
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <?php
+                                }
+                                ?>
                             </tr>
-                            <div class="modal" id="textArticle<?php echo $count ?>">
+                            <div class="modal" id="textArticleNeed<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -369,46 +406,30 @@ $pageContent = new class {
                                         </div>
                                         <div class="modal-body">
                                             <!-- forma -->
-                                            <form enctype="multipart/form-data" action="" method="POST">
-                                                <div class="form-group">
-                                                    <label for="fheading" class="custom-text-secondary">Název</label>
-                                                    <input type="text" name="fheading" class="form-control"
-                                                           id="fabstract" value="<?php echo $row["nazev"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fdate" class="custom-text-secondary">Datum
-                                                        nahrání</label>
-                                                    <input type="text" name="fdate" class="form-control"
-                                                           id="fdate" value="<?php echo $row["datum"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fabstract"
-                                                           class="custom-text-secondary">Abstrakt</label>
-                                                    <textarea id="fabstract" name="fabstract" class="form-control"
-                                                              rows="10"
-                                                              cols="50"
-                                                              readonly><?php echo $row["abstrakt"] ?></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fname" class="custom-text-secondary">Autor</label>
-                                                    <input type="text" name="fname" class="form-control"
-                                                           id="fname"
-                                                           placeholder="<?php echo $row["userName"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <input type="hidden" id="ffilePath" name="ffilePath"
-                                                           value="<?php echo $row["soubor"] ?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
-                                                    <a href="<?php echo $row["soubor"] ?>"
-                                                       download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
-                                                        článek</a>
-                                                </div>
-                                            </form>
+                                            <div>
+                                                <p><span>Název: </span><?php echo $row["nazev"] ?></p>
+                                            </div>
+                                            <div class="form-text custom-text-secondary">
+                                                <p>
+                                                    <span>Autor: </span><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p><span>Datum nahrání: </span><?php echo $row["datum"] ?></p>
+                                            </div>
+                                            <div>
+                                                <p><span>Abstrakt: </span><?php echo $row["abstrakt"] ?></p>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="hidden" id="ffilePathWaiting" name="ffilePath"
+                                                       value="<?php echo $row["soubor"] ?>">
+                                            </div>
+                                            <div class="form-group">
+                                                <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
+                                                <a href="<?php echo $row["soubor"] ?>"
+                                                   download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
+                                                    článek</a>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-danger custom-btn-secondary"
@@ -419,7 +440,7 @@ $pageContent = new class {
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal" id="textArticleRevs<?php echo $count ?>">
+                            <div class="modal" id="textArticleNeedRevs<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -429,28 +450,16 @@ $pageContent = new class {
                                         <div class="modal-body">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni0"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni1"]["prijmeni"] . " " . $row["hodnoceni1"]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni0"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni0"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni0"]["krit3"] ?></span><br>
-                                                        </div>
-                                                    </div>
-                                                    <hr>
-                                                    <p> Poznámka: <?php echo $row["hodnoceni0"]["zprava"] ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni1"]["autor"] ?></span><br>
-                                                    <hr>
-                                                    <div class="py-2">
-                                                        <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni1"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni1"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni1"]["krit3"] ?></span><br>
+                                                            <span>Téma:
+                                                                <?php
+                                                                echo $row["hodnoceni1"]["hodnoceni1"]
+                                                                ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni1"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni1"]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
@@ -459,17 +468,32 @@ $pageContent = new class {
                                             </div>
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni2"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni2"]["prijmeni"] . " " . $row["hodnoceni2"]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni2"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni2"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni2"]["krit3"] ?></span><br>
+                                                            <span>Téma: <?php echo $row["hodnoceni2"]["hodnoceni1"] ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni2"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni2"]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <p> Poznámka: <?php echo $row["hodnoceni2"]["zprava"] ?></p>
+                                                </div>
+                                            </div>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni3"]["prijmeni"] . " " . $row["hodnoceni3"]["jmeno"] ?></span><br>
+                                                    <hr>
+                                                    <div class="py-2">
+                                                        <div class="">
+                                                            <span>Téma: <?php echo $row["hodnoceni3"]["hodnoceni1"] ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni3"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni3"]["hodnoceni3"] ?></span><br>
+                                                        </div>
+                                                    </div>
+                                                    <hr>
+                                                    <p> Poznámka: <?php echo $row["hodnoceni3"]["zprava"] ?></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -494,12 +518,17 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Zobrazi prispevky schvalene
+     *
+     * @param array $articles
+     */
     public function getAssignedAndApproved(array $articles)
     {
         ?>
         <div class="card">
             <div class="card-title text-center py-2 custom-text-primary"><h4>Potvrzené příspěvky</h4></div>
-            <div class="card-subtitle text-center custom-text-secondary">Příspěvky čekající na zrecenzování a schváení
+            <div class="card-subtitle text-center custom-text-secondary">Příspěvky viditelné pro všechny uživatele.
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -507,6 +536,7 @@ $pageContent = new class {
                         <thead>
                         <tr class="custom-text-primary">
                             <th>Název</th>
+                            <th>Autor</th>
                             <th>Datum vložení</th>
                             <th></th>
                             <th></th>
@@ -519,23 +549,24 @@ $pageContent = new class {
                             ?>
                             <tr>
                                 <td><?php echo $row["nazev"] ?></td>
+                                <td><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?></td>
                                 <td><?php echo $row["datum"] ?></td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticleRevs<?php echo $count ?>">
+                                            data-target="#textArticleApRevs<?php echo $count ?>">
                                         Hodnocení
                                     </button>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticle<?php echo $count ?>">
+                                            data-target="#textArticleAp<?php echo $count ?>">
                                         Podrobnosti
                                     </button>
                                 </td>
                             </tr>
-                            <div class="modal" id="textArticle<?php echo $count ?>">
+                            <div class="modal" id="textArticleAp<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -544,46 +575,30 @@ $pageContent = new class {
                                         </div>
                                         <div class="modal-body">
                                             <!-- forma -->
-                                            <form enctype="multipart/form-data" action="" method="POST">
-                                                <div class="form-group">
-                                                    <label for="fheading" class="custom-text-secondary">Název</label>
-                                                    <input type="text" name="fheading" class="form-control"
-                                                           id="fabstract" value="<?php echo $row["nazev"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fdate" class="custom-text-secondary">Datum
-                                                        nahrání</label>
-                                                    <input type="text" name="fdate" class="form-control"
-                                                           id="fdate" value="<?php echo $row["datum"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fabstract"
-                                                           class="custom-text-secondary">Abstrakt</label>
-                                                    <textarea id="fabstract" name="fabstract" class="form-control"
-                                                              rows="10"
-                                                              cols="50"
-                                                              readonly><?php echo $row["abstrakt"] ?></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fname" class="custom-text-secondary">Autor</label>
-                                                    <input type="text" name="fname" class="form-control"
-                                                           id="fname"
-                                                           placeholder="<?php echo $row["userName"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <input type="hidden" id="ffilePath" name="ffilePath"
-                                                           value="<?php echo $row["soubor"] ?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
-                                                    <a href="<?php echo $row["soubor"] ?>"
-                                                       download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
-                                                        článek</a>
-                                                </div>
-                                            </form>
+                                            <div>
+                                                <p><span>Název: </span><?php echo $row["nazev"] ?></p>
+                                            </div>
+                                            <div class="form-text custom-text-secondary">
+                                                <p>
+                                                    <span>Autor: </span><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p><span>Datum nahrání: </span><?php echo $row["datum"] ?></p>
+                                            </div>
+                                            <div>
+                                                <p><span>Abstrakt: </span><?php echo $row["abstrakt"] ?></p>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="hidden" id="ffilePathWaiting" name="ffilePath"
+                                                       value="<?php echo $row["soubor"] ?>">
+                                            </div>
+                                            <div class="form-group">
+                                                <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
+                                                <a href="<?php echo $row["soubor"] ?>"
+                                                   download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
+                                                    článek</a>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-danger custom-btn-secondary"
@@ -594,7 +609,7 @@ $pageContent = new class {
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal" id="textArticleRevs<?php echo $count ?>">
+                            <div class="modal" id="textArticleApRevs<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -604,28 +619,16 @@ $pageContent = new class {
                                         <div class="modal-body">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni0"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni1"]["prijmeni"] . " " . $row["hodnoceni1"]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni0"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni0"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni0"]["krit3"] ?></span><br>
-                                                        </div>
-                                                    </div>
-                                                    <hr>
-                                                    <p> Poznámka: <?php echo $row["hodnoceni0"]["zprava"] ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni1"]["autor"] ?></span><br>
-                                                    <hr>
-                                                    <div class="py-2">
-                                                        <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni1"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni1"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni1"]["krit3"] ?></span><br>
+                                                            <span>Téma:
+                                                                <?php
+                                                                echo $row["hodnoceni1"]["hodnoceni1"]
+                                                                ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni1"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni1"]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
@@ -634,17 +637,32 @@ $pageContent = new class {
                                             </div>
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni2"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni2"]["prijmeni"] . " " . $row["hodnoceni2"]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni2"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni2"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni2"]["krit3"] ?></span><br>
+                                                            <span>Téma: <?php echo $row["hodnoceni2"]["hodnoceni1"] ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni2"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni2"]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <p> Poznámka: <?php echo $row["hodnoceni2"]["zprava"] ?></p>
+                                                </div>
+                                            </div>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni3"]["prijmeni"] . " " . $row["hodnoceni3"]["jmeno"] ?></span><br>
+                                                    <hr>
+                                                    <div class="py-2">
+                                                        <div class="">
+                                                            <span>Téma: <?php echo $row["hodnoceni3"]["hodnoceni1"] ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni3"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni3"]["hodnoceni3"] ?></span><br>
+                                                        </div>
+                                                    </div>
+                                                    <hr>
+                                                    <p> Poznámka: <?php echo $row["hodnoceni3"]["zprava"] ?></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -669,6 +687,11 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Vrati nec
+     *
+     * @param array $articles
+     */
     public function getDismissed(array $articles)
     {
         ?>
@@ -725,7 +748,9 @@ $pageContent = new class {
                                                 <p><span>Název: </span><?php echo $row["nazev"] ?></p>
                                             </div>
                                             <div class="form-text custom-text-secondary">
-                                                <p><span>Autor: </span><?php echo $row["userName"] ?></p>
+                                                <p>
+                                                    <span>Autor: </span><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?>
+                                                </p>
                                             </div>
                                             <div>
                                                 <p><span>Datum nahrání: </span><?php echo $row["datum"] ?></p>
@@ -734,7 +759,7 @@ $pageContent = new class {
                                                 <p><span>Abstrakt: </span><?php echo $row["abstrakt"] ?></p>
                                             </div>
                                             <div class="form-group">
-                                                <input type="hidden" id="ffilePath" name="ffilePath"
+                                                <input type="hidden" id="ffilePathWaiting" name="ffilePath"
                                                        value="<?php echo $row["soubor"] ?>">
                                             </div>
                                             <div class="form-group">
@@ -763,28 +788,16 @@ $pageContent = new class {
                                         <div class="modal-body">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni0"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni1"]["prijmeni"] . " " . $row["hodnoceni1"]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni0"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni0"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni0"]["krit3"] ?></span><br>
-                                                        </div>
-                                                    </div>
-                                                    <hr>
-                                                    <p> Poznámka: <?php echo $row["hodnoceni0"]["zprava"] ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni1"]["autor"] ?></span><br>
-                                                    <hr>
-                                                    <div class="py-2">
-                                                        <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni1"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni1"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni1"]["krit3"] ?></span><br>
+                                                            <span>Téma:
+                                                                <?php
+                                                                echo $row["hodnoceni1"]["hodnoceni1"]
+                                                                ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni1"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni1"]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
@@ -793,17 +806,32 @@ $pageContent = new class {
                                             </div>
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni2"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni2"]["prijmeni"] . " " . $row["hodnoceni2"]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni2"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni2"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni2"]["krit3"] ?></span><br>
+                                                            <span>Téma: <?php echo $row["hodnoceni2"]["hodnoceni1"] ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni2"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni2"]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <p> Poznámka: <?php echo $row["hodnoceni2"]["zprava"] ?></p>
+                                                </div>
+                                            </div>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni3"]["prijmeni"] . " " . $row["hodnoceni3"]["jmeno"] ?></span><br>
+                                                    <hr>
+                                                    <div class="py-2">
+                                                        <div class="">
+                                                            <span>Téma: <?php echo $row["hodnoceni3"]["hodnoceni1"] ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni3"]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni3"]["hodnoceni3"] ?></span><br>
+                                                        </div>
+                                                    </div>
+                                                    <hr>
+                                                    <p> Poznámka: <?php echo $row["hodnoceni3"]["zprava"] ?></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -830,11 +858,12 @@ $pageContent = new class {
 };
 
 // webova stranka
-$pageTpl->getHead("test");
+$pageTpl->getHead($tplData["title"]);
 ?>
-    <body>
+    <body class="d-flex flex-column min-vh-100">
     <?php
     // kontex stranky
+    $pageTpl->getSpecialEvent();
     $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
     ?>
     <div class="container">
@@ -848,14 +877,20 @@ $pageTpl->getHead("test");
                 $pageContent->getUserManagement($tplData["users"], $tplData["userWeight"]);
                 break;
             case 1:
-                $pageContent->getAssignRev($tplData["waiting"], $tplData["reviewers"]);
-                $pageContent->getAssignedButNotAprooved($tplData["dismissedArticles"]);
-                $pageContent->getAssignedAndApproved($tplData["dismissedArticles"]);
-                $pageContent->getDismissed($tplData["dismissedArticles"]);
+                $pageContent->getWaitingArticles($tplData["waiting"], $tplData["reviewers"]);
+                echo "<hr>";
+                $pageContent->getNeedReviewsArticles($tplData["needReview"]);
+                echo "<hr>";
+                $pageContent->getAssignedAndApproved($tplData["approved"]);
+                echo "<hr>";
+                $pageContent->getDismissed($tplData["notApproved"]);
                 break;
         }
         ?>
     </div>
+    <?php
+    $pageTpl->getFooter();
+    ?>
     </body>
 <?php
 $pageTpl->getEnd();

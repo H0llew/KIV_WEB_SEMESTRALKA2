@@ -28,8 +28,11 @@ class UserManagementController implements IController
         global $tplData;
         $tplData = [];
 
+        $tplData["title"] = $pageTitle;
+
         $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
         $tplData["isAdmin"] = $this->userModel->isUserAdmin();
+        $tplData["isReviewer"] = $this->userModel->isUserReviewer();
 
         $this->checkPOST();
 

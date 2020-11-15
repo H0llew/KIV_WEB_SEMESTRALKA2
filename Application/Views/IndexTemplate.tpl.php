@@ -21,7 +21,7 @@ $pageContent = new class {
     {
         ?>
         <!-- uvod -->
-        <article id="uvod">
+        <article id="uvod" class="pt-5">
             <!-- kdo a co -->
             <div class="card text-light custom-text-secondary" style="background-color: #083B66">
                 <div class="card-body">
@@ -110,7 +110,7 @@ $pageContent = new class {
     {
         ?>
         <!-- o nas -->
-        <article id="o_nas">
+        <article id="o_nas" class="pt-5">
             <div class="card">
                 <!-- kdo jsme -->
                 <div class="card-body custom-text-primary">
@@ -168,7 +168,7 @@ $pageContent = new class {
     {
         ?>
         <!-- sponzori -->
-        <article id="sponzori">
+        <article id="sponzori" class="pt-5">
             <div class="card">
                 <div class="card-body">
                     <h2 class="custom-text-primary">SPONZOŘI</h2>
@@ -185,27 +185,29 @@ $pageContent = new class {
 };
 
 // webova stranka
-$pageTpl->getHead("test");
+$pageTpl->getHead($tplData["title"]);
 ?>
-    <body>
+    <body class="d-flex flex-column min-vh-100">
     <?php
     // kontex stranky
+    $pageTpl->getSpecialEvent();
     $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
     ?>
     <div class="container">
         <?php
         $pageContent->getIntroduction();
-        ?>
-        <hr><?php
+        echo "<hr>";
         $pageContent->getActions();
-        ?>
-        <hr><?php
+        echo "<hr>";
         $pageContent->getAboutUs();
-        ?>
-        <hr><?php
+        echo "<hr>";
         $pageContent->getSponsors();
+        echo "<hr>";
         ?>
     </div>
+    <?php
+    $pageTpl->getFooter();
+    ?>
     </body>
 <?php
 $pageTpl->getEnd();

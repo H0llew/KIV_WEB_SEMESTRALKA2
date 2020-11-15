@@ -32,6 +32,8 @@ class CreateNewArticleController implements IController
         global $tplData;
         $tplData = [];
 
+        $tplData["title"] = $pageTitle;
+
         $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
         $tplData["isAdmin"] = $this->userModel->isUserAdmin();
         //$tplData["successfulUpload"] = true;

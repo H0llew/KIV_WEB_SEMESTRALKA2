@@ -57,7 +57,7 @@ class PageTemplate
     {
         ?>
         <!-- navbar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
             <!-- kolapsujici navbar -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
                 <span class="navbar-toggler-icon"></span>
@@ -94,7 +94,7 @@ class PageTemplate
                     </li>
                     <!-- clanky -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Články</a>
+                        <a class="nav-link" href="index.php?page=articles">Články</a>
                     </li>
                 </ul>
                 <!-- uzivatele -->
@@ -138,6 +138,47 @@ class PageTemplate
                 </ul>
             </div>
         </nav>
+        <?php
+    }
+
+    /**
+     * Vytvori paticku webove stranky
+     */
+    public function getFooter()
+    {
+        ?>
+        <footer class="mt-auto">
+            <div style="background-color: #083B66" class="py-3 d-flex justify-content-center">
+                <span class="custom-light-text">&copy; 2020-<?php echo date("Y") ?> Vytvořil Martin Jakubašek</span>
+            </div>
+        </footer>
+        <?php
+    }
+
+    // specialni akce
+
+    /**
+     * Pokud je specialni akce, bude zde
+     */
+    public function getSpecialEvent()
+    {
+        ?>
+        <!-- specialni udalost -->
+        <div class="jumbotron jumbotron-fluid py-2" style="background-color: black;margin-bottom: 0">
+            <div class="container-fluid d-flex justify-content-center">
+                <!-- text -->
+                <a href="#">
+                    <div class="row border border-warning">
+                        <div class="col-sm-4 text-warning px-0 mx-0" style="text-align: center">
+                            <h3>COVID-19<br>INFO</h3>
+                        </div>
+                        <div class="col-8 m-auto p-0 text-light">
+                            <p>Pro více informací týkající se omezení v souvislosti se současnou krizí klikněte ZDE</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
         <?php
     }
 }

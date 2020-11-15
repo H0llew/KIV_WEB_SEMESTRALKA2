@@ -141,6 +141,18 @@ class ArticleModel extends DatabaseModel
         return $this->editArticle($articleID, $heading, $abstract);
     }
 
+    public function getArticle(int $id_clanek)
+    {
+        return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, "id_clanek={$id_clanek} AND " . TABLE_CLANEK . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel");
+    }
+
+    public function updateArticleStatus(int $id_clanek, int $status)
+    {
+        return $this->updateInTable(TABLE_CLANEK, "schvalen={$status}", "id_clanek={$id_clanek}");
+    }
+
+    // filtrovani prispevku
+
     public function getAllArticles(int $status)
     {
         //SELECT * FROM mjakubas_uzivatel, mjakubas_clanek WHERE mjakubas_clanek.schvalen=0 AND mjakubas_uzivatel.id_uzivatel=mjakubas_clanek.id_uzivatel
@@ -151,10 +163,67 @@ class ArticleModel extends DatabaseModel
 
     public function createNewEmptyReview(int $id_user, int $id_clanek)
     {
-        $insertStatement = "id_uzivatel, id_clanek, hodnoceni, zprava";
-        $insertValues = "{$id_user}, '{$id_clanek}', '-1', '-1'";
+        $insertStatement = "id_uzivatel, id_clanek, hodnoceni1, hodnoceni2, hodnoceni3, zprava";
+        $insertValues = "{$id_user}, '{$id_clanek}', '-1', '-1', '-1', '-1'";
 
         return $this->insertIntoTable(TABLE_RECENZE, $insertStatement, $insertValues);
+    }
+
+    public function existsAllValidReviews(int $id_clanek)
+    {
+        $review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
+        if (empty($review))
+            return false;
+        if (count($review) < 3)
+            return false;
+
+        $revs = $this->getArticleReviews($id_clanek);
+        foreach ($revs as $row) {
+            if (!($row["hodnoceni1"] != -1 && $row["hodnoceni2"] != -1 && $row["hodnoceni3"] != -1 && $row["zprava"] != -1))
+                return false;
+        }
+
+        return true;
+    }
+
+    // recenze
+
+    public function getArticleReviews(int $id_clanek)
+    {
+        //SELECT * FROM mjakubas_recenze, mjakubas_uzivatel WHERE mjakubas_recenze.id_clanek=1 AND mjakubas_uzivatel.id_uzivatel=mjakubas_recenze.id_uzivatel
+
+        $tableName = TABLE_RECENZE . ", " . TABLE_UZIVATEL;
+        $whereStatement = TABLE_RECENZE . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel AND " . "id_clanek={$id_clanek}";
+
+        return $this->selectFromTable($tableName, $whereStatement);
+    }
+
+    public function getLoggedUserReviews()
+    {
+        // je uzivatel prihlasen?
+        if (!$this->userModel->isUserLoggedIn())
+            return [];
+
+        // zjisti id uzivatele
+        $userID = $this->userModel->getUserID();
+        if ($userID == -1)
+            return [];
+
+        $nonValid = $this->getUserReviews($userID, "(hodnoceni1 = -1 OR hodnoceni2 = -1 OR hodnoceni3 = -1 OR zprava = '-1')");
+        $valid = $this->getUserReviews($userID, "(hodnoceni1 <> -1 AND hodnoceni2 <> -1 AND hodnoceni3 <> -1 AND zprava <> '-1')");
+
+        return array(
+            "nonValid" => $nonValid,
+            "valid" => $valid
+        );
+    }
+
+    public function updateReview(int $rev_id, int $fh1, int $fh2, int $fh3, string $zprava)
+    {
+        $updateStatementWithValues = "hodnoceni1='{$fh1}', hodnoceni2='{$fh2}', hodnoceni3='{$fh3}', zprava='{$zprava}'";
+        $whereStatement = "id_recenze='{$rev_id}'";
+
+        return $this->updateInTable(TABLE_RECENZE, $updateStatementWithValues, $whereStatement);
     }
 
     // private
@@ -209,5 +278,14 @@ class ArticleModel extends DatabaseModel
         $whereStatement = "id_clanek='{$articleID}'";
 
         return $this->updateInTable(TABLE_CLANEK, $updateStatementWithValues, $whereStatement);
+    }
+
+    private function getUserReviews(int $userID, string $whereStatement = "")
+    {
+        $userWhereStatement = TABLE_RECENZE . ".id_uzivatel='{$userID}' AND " . TABLE_UZIVATEL . ".id_uzivatel='{$userID}'";
+        if ($whereStatement != "")
+            $userWhereStatement .= " AND " . $whereStatement;
+
+        return $this->selectFromTable(TABLE_RECENZE . ", " . TABLE_UZIVATEL, $userWhereStatement);
     }
 }

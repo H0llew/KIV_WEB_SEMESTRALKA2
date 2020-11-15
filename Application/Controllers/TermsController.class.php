@@ -7,6 +7,15 @@ require_once("IController.interface.php");
  */
 class TermsController implements IController
 {
+    // fce s databazi pro prihlasovani uzivatele
+    private $userModel;
+
+    public function __construct()
+    {
+        require_once(DIR_MODELS . "/UserModel.class.php");
+        $this->userModel = new UserModel();
+    }
+
     /**
      * Preda kod stranky ve stringu
      *
@@ -18,8 +27,10 @@ class TermsController implements IController
         global $tplData;
         $tplData = [];
 
-        $tplData["isLogged"] = false;
-        $tplData["isAdmin"] = false;
+        $tplData["title"] = $pageTitle;
+
+        $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
+        $tplData["isAdmin"] = $this->userModel->isUserAdmin();
 
         ob_start();
         require(DIR_VIEWS . "/TermsTemplate.tpl.php");

@@ -41,7 +41,7 @@ $pageContent = new class {
             <div class="form-group">
                 <label for="fpassword" class="custom-text-secondary">Heslo</label>
                 <input type="password" class="form-control" id="fpassword" name="fpassword" placeholder="Heslo"
-                       required><br>
+                       required onchange="comparePw()"><br>
 
                 <label for="fpassword2" class="custom-text-secondary">Heslo</label>
                 <input type="password" class="form-control" id="fpassword2" name="fpassword2"
@@ -89,7 +89,7 @@ $pageContent = new class {
     {
         ?>
         <h2 class="h3 custom-text-primary text-center py-5">Děkujeme Vám za registraci! <br>
-            Prosím zkontrolujte si svůj email a postupujte podle pokuný uvedených v emailu.</h2>
+            Prosím zkontrolujte si svůj email a postupujte podle pokynů uvedených v emailu.</h2>
         <?php
     }
 
@@ -119,11 +119,12 @@ $pageContent = new class {
 };
 
 // webova stranka
-$pageTpl->getHead("test");
+$pageTpl->getHead($tplData["title"]);
 ?>
-    <body>
+    <body class="d-flex flex-column min-vh-100">
     <?php
     // kontex stranky
+    $pageTpl->getSpecialEvent();
     $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
     ?>
     <div class="container">
@@ -152,6 +153,9 @@ $pageTpl->getHead("test");
         }
         ?>
     </div>
+    <?php
+    $pageTpl->getFooter();
+    ?>
     </body>
 <?php
 $pageTpl->getEnd();

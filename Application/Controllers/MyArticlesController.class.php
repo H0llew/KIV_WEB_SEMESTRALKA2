@@ -31,10 +31,14 @@ class MyArticlesController implements IController
         global $tplData;
         $tplData = [];
 
+        $tplData["title"] = $pageTitle;
+
         $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
         $tplData["isAdmin"] = $this->userModel->isUserAdmin();
+        $tplData["isReviewer"] = $this->userModel->isUserReviewer();
 
         // test
+        /*
 
         $tplData["notVerifiedArticles"] = array(
             0 => array(
@@ -80,12 +84,15 @@ class MyArticlesController implements IController
             )
         );
 
+        */
         // test
 
         $this->checkPOST();
 
         $tplData["userArticles"] = $this->articleModel->getLoggedUserArticles();
         $tplData["userArticles"]["waiting"] = $this->assignAllArticlesStatus($tplData["userArticles"]["waiting"]);
+        $tplData["userArticles"]["approved"] = $this->assignRevsToArticles($tplData["userArticles"]["approved"]);
+        $tplData["userArticles"]["dissmised"] = $this->assignRevsToArticles($tplData["userArticles"]["dissmised"]);
 
         ob_start();
         require(DIR_VIEWS . "/MyArticlesTemplate.tpl.php");
@@ -146,7 +153,8 @@ class MyArticlesController implements IController
     /**
      * Priradi prispevku novou hodnotu a to jeho status (1 = existuje recenzet; 0 neexistuje recenzet)
      *
-     * @param $articleID int clanek
+     * @param $articleEntry
+     * @return
      */
     private function assignArticleStatus($articleEntry)
     {
@@ -158,4 +166,21 @@ class MyArticlesController implements IController
 
         return $articleEntry; // nebere jen jako referenci ?
     }
+
+    /**
+     * priradi clankum recenze
+     */
+    private function assignRevsToArticles(array $articles)
+    {
+        $res = [];
+        foreach ($articles as $row) {
+
+            $revs = $this->articleModel->getArticleReviews($row["id_clanek"]);
+            $row["hodnoceni"] = $revs;
+            array_push($res, $row);
+
+        }
+        return $res;
+    }
+
 }

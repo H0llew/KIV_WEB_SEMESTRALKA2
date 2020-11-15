@@ -31,26 +31,34 @@ $pageContent = new class {
             </div>
             <div class="form-group">
                 <label for="fsubject" class="custom-text-secondary">Předmět</label>
-                <input type="text" class="form-control" id="fsubject" name="fsubject" placeholder="Zadejte Předmět"
+                <input type="text" class="form-control" id="fsubject" name="fsubject" placeholder="Zadejte předmět"
                        required><br>
             </div>
             <div class="form-group">
                 <label for="ftext" class="custom-text-secondary">Zpráva</label>
-                <textarea class="form-control" id="ftext" name="ftext" placeholder="Zadejte Zprávu"
+                <textarea class="form-control" id="ftext" name="ftext" placeholder="Zadejte zprávu"
                           rows="10" required></textarea>
             </div>
-            <button type="submit" class="btn btn-light w-100 py-2 custom-btn-submit-long">Odeslat</button>
+            <button type="button" class="btn btn-light w-100 py-2 custom-btn-submit-long" data-toggle="popover"
+                    title="Upozornění!" data-content="Tato funkce není momentálně k dispozici">Odeslat
+            </button>
+            <script>
+                $(document).ready(function () {
+                    $('[data-toggle="popover"]').popover();
+                });
+            </script>
         </form>
         <?php
     }
 };
 
 // webova stranka
-$pageTpl->getHead("test");
+$pageTpl->getHead($tplData["title"]);
 ?>
-    <body>
+    <body class="d-flex flex-column min-vh-100">
     <?php
     // kontex stranky
+    $pageTpl->getSpecialEvent();
     $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
     ?>
     <div class="container">
@@ -58,6 +66,9 @@ $pageTpl->getHead("test");
         $pageContent->getContactForm();
         ?>
     </div>
+    <?php
+    $pageTpl->getFooter();
+    ?>
     </body>
 <?php
 $pageTpl->getEnd();

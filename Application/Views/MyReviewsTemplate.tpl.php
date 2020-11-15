@@ -16,6 +16,11 @@ global $tplData;
 // metody stranky
 $pageContent = new class {
 
+    /**
+     * Vrati prispevky ocekavajici recenzy
+     *
+     * @param $articles
+     */
     public function getRequestedReviews($articles)
     {
         ?>
@@ -43,9 +48,9 @@ $pageContent = new class {
                         foreach ($articles as $row) {
                             ?>
                             <tr>
-                                <td><?php echo $row["nazev"] ?></td>
-                                <td><?php echo $row["userName"] ?></td>
-                                <td><?php echo $row["datum"] ?></td>
+                                <td><?php echo $row["article"]["nazev"] ?></td>
+                                <td><?php echo $row["article"]["prijmeni"] . " " . $row["article"]["jmeno"] ?></td>
+                                <td><?php echo $row["article"]["datum"] ?></td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
@@ -71,25 +76,28 @@ $pageContent = new class {
                                         <div class="modal-body">
                                             <!-- forma -->
                                             <div>
-                                                <p><span>Název: </span><?php echo $row["nazev"] ?></p>
+                                                <p><span>Název: </span><?php echo $row["article"]["nazev"] ?></p>
                                             </div>
                                             <div class="form-text custom-text-secondary">
-                                                <p><span>Autor: </span><?php echo $row["userName"] ?></p>
+                                                <p>
+                                                    <span>Autor: </span><?php echo $row["article"]["prijmeni"] . " " . $row["article"]["jmeno"] ?>
+                                                </p>
                                             </div>
                                             <div>
-                                                <p><span>Datum nahrání: </span><?php echo $row["datum"] ?></p>
+                                                <p><span>Datum nahrání: </span><?php echo $row["article"]["datum"] ?>
+                                                </p>
                                             </div>
                                             <div>
-                                                <p><span>Abstrakt: </span><?php echo $row["abstrakt"] ?></p>
+                                                <p><span>Abstrakt: </span><?php echo $row["article"]["abstrakt"] ?></p>
                                             </div>
                                             <div class="form-group">
                                                 <input type="hidden" id="ffilePath" name="ffilePath"
-                                                       value="<?php echo $row["soubor"] ?>">
+                                                       value="<?php echo $row["article"]["soubor"] ?>">
                                             </div>
                                             <div class="form-group">
-                                                <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
-                                                <a href="<?php echo $row["soubor"] ?>"
-                                                   download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
+                                                <?php $row["article"]["soubor"] = str_replace("C:/xampp/htdocs", "", $row["article"]["soubor"]) ?>
+                                                <a href="<?php echo $row["article"]["soubor"] ?>"
+                                                   download="<?php echo $row["article"]["nazev"] ?>"> Stáhnout pdf
                                                     článek</a>
                                             </div>
                                         </div>
@@ -107,25 +115,41 @@ $pageContent = new class {
                                     <div class="modal-content">
 
                                         <div class="modal-header text justify-content-center">
-                                            <h4 class="modal-title custom-text-primary">Příspěvek</h4>
+                                            <h4 class="modal-title custom-text-primary">Hodnocení</h4>
                                         </div>
                                         <div class="modal-body">
                                             <!-- forma -->
-                                            <form enctype="multipart/form-data" action="" method="POST">
-                                                <div class="form-group">
-                                                    <label for="fkrit1" class="custom-text-secondary">Krit1</label>
-                                                    <input type="text" name="fkrit1" class="form-control"
-                                                           id="fkrit1" required>
+                                            <form action="" method="POST">
+                                                <input type="hidden" name="id" value="<?php echo $row["id_recenze"] ?>">
+                                                <div>
+                                                    <label for="fh1">Téma:</label>
+                                                    <select name="fh1">
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                    </select>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="fkrit2" class="custom-text-secondary">Krit2</label>
-                                                    <input type="text" name="fkrit2" class="form-control"
-                                                           id="fkrit2" required>
+                                                    <label for="fh2">Téchnická kvalita:</label>
+                                                    <select name="fh2">
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                    </select>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="fkrit3" class="custom-text-secondary">Krit3</label>
-                                                    <input type="text" name="fkrit3" class="form-control"
-                                                           id="fkrit3" required>
+                                                    <label for="fh3">Jazyková kvalita:</label>
+                                                    <select name="fh3">
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                    </select>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="fabstract"
@@ -136,9 +160,7 @@ $pageContent = new class {
                                                 </div>
                                                 <div class="d-flex justify-content-center">
                                                     <button type="submit" class="btn btn-primary custom-btn-primary"
-                                                            name="action"
-                                                            id="article" value="upload"
-                                                            disabled>
+                                                            name="action" value="review">
                                                         Odeslat recenzi
                                                     </button>
                                                 </div>
@@ -165,6 +187,11 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Vrati moje recenze
+     *
+     * @param $articles
+     */
     public function getMyReviews($articles)
     {
         ?>
@@ -191,24 +218,24 @@ $pageContent = new class {
                         foreach ($articles as $row) {
                             ?>
                             <tr>
-                                <td><?php echo $row["nazev"] ?></td>
-                                <td><?php echo $row["datum"] ?></td>
+                                <td><?php echo $row["article"]["nazev"] ?></td>
+                                <td><?php echo $row["article"]["datum"] ?></td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticleRevs<?php echo $count ?>">
+                                            data-target="#textArticleRevsMY<?php echo $count ?>">
                                         Hodnocení
                                     </button>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-primary custom-btn-secondary"
                                             data-toggle="modal"
-                                            data-target="#textArticle<?php echo $count ?>">
+                                            data-target="#textArticleMY<?php echo $count ?>">
                                         Podrobnosti
                                     </button>
                                 </td>
                             </tr>
-                            <div class="modal" id="textArticle<?php echo $count ?>">
+                            <div class="modal" id="textArticleMY<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -217,46 +244,31 @@ $pageContent = new class {
                                         </div>
                                         <div class="modal-body">
                                             <!-- forma -->
-                                            <form enctype="multipart/form-data" action="" method="POST">
-                                                <div class="form-group">
-                                                    <label for="fheading" class="custom-text-secondary">Název</label>
-                                                    <input type="text" name="fheading" class="form-control"
-                                                           id="fabstract" value="<?php echo $row["nazev"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fdate" class="custom-text-secondary">Datum
-                                                        nahrání</label>
-                                                    <input type="text" name="fdate" class="form-control"
-                                                           id="fdate" value="<?php echo $row["datum"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fabstract"
-                                                           class="custom-text-secondary">Abstrakt</label>
-                                                    <textarea id="fabstract" name="fabstract" class="form-control"
-                                                              rows="10"
-                                                              cols="50"
-                                                              readonly><?php echo $row["abstrakt"] ?></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fname" class="custom-text-secondary">Autor</label>
-                                                    <input type="text" name="fname" class="form-control"
-                                                           id="fname"
-                                                           placeholder="<?php echo $row["userName"] ?>"
-                                                           readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <input type="hidden" id="ffilePath" name="ffilePath"
-                                                           value="<?php echo $row["soubor"] ?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <?php $row["soubor"] = str_replace("C:/xampp/htdocs", "", $row["soubor"]) ?>
-                                                    <a href="<?php echo $row["soubor"] ?>"
-                                                       download="<?php echo $row["nazev"] ?>"> Stáhnout pdf
-                                                        článek</a>
-                                                </div>
-                                            </form>
+                                            <div>
+                                                <p><span>Název: </span><?php echo $row["article"]["nazev"] ?></p>
+                                            </div>
+                                            <div class="form-text custom-text-secondary">
+                                                <p>
+                                                    <span>Autor: </span><?php echo $row["article"]["prijmeni"] . " " . $row["article"]["jmeno"] ?>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p><span>Datum nahrání: </span><?php echo $row["article"]["datum"] ?>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p><span>Abstrakt: </span><?php echo $row["article"]["abstrakt"] ?></p>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="hidden" id="ffilePathWaiting" name="ffilePath"
+                                                       value="<?php echo $row["soubor"] ?>">
+                                            </div>
+                                            <div class="form-group">
+                                                <?php $row["article"]["soubor"] = str_replace("C:/xampp/htdocs", "", $row["article"]["soubor"]) ?>
+                                                <a href="<?php echo $row["article"]["soubor"] ?>"
+                                                   download="<?php echo $row["article"]["nazev"] ?>"> Stáhnout pdf
+                                                    článek</a>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-danger custom-btn-secondary"
@@ -267,7 +279,7 @@ $pageContent = new class {
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal" id="textArticleRevs<?php echo $count ?>">
+                            <div class="modal" id="textArticleRevsMY<?php echo $count ?>">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
 
@@ -277,47 +289,50 @@ $pageContent = new class {
                                         <div class="modal-body">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni0"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni"][0]["prijmeni"] . " " . $row["hodnoceni"][0]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni0"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni0"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni0"]["krit3"] ?></span><br>
+                                                            <span>Téma:
+                                                                <?php
+                                                                echo $row["hodnoceni"][0]["hodnoceni1"]
+                                                                ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni"][0]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni"][0]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
-                                                    <p> Poznámka: <?php echo $row["hodnoceni0"]["zprava"] ?></p>
+                                                    <p> Poznámka: <?php echo $row["hodnoceni"][0]["zprava"] ?></p>
                                                 </div>
                                             </div>
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni1"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni"][1]["prijmeni"] . " " . $row["hodnoceni"][1]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni1"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni1"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni1"]["krit3"] ?></span><br>
+                                                            <span>Téma: <?php echo $row["hodnoceni"][1]["hodnoceni1"] ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni"][1]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni"][1]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
-                                                    <p> Poznámka: <?php echo $row["hodnoceni1"]["zprava"] ?></p>
+                                                    <p> Poznámka: <?php echo $row["hodnoceni"][1]["zprava"] ?></p>
                                                 </div>
                                             </div>
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <span>Hodnocení: <?php echo $row["hodnoceni2"]["autor"] ?></span><br>
+                                                    <span>Hodnocení: <?php echo $row["hodnoceni"][2]["prijmeni"] . " " . $row["hodnoceni"][2]["jmeno"] ?></span><br>
                                                     <hr>
                                                     <div class="py-2">
                                                         <div class="">
-                                                            <span>Téma: <?php echo $row["hodnoceni2"]["krit1"] ?></span><br>
-                                                            <span>Technická kvalita: <?php echo $row["hodnoceni2"]["krit2"] ?></span><br>
-                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni2"]["krit3"] ?></span><br>
+                                                            <span>Téma: <?php echo $row["hodnoceni"][2]["hodnoceni1"] ?></span><br>
+                                                            <span>Technická kvalita: <?php echo $row["hodnoceni"][2]["hodnoceni2"] ?></span><br>
+                                                            <span>Jazyková kvalita: <?php echo $row["hodnoceni"][2]["hodnoceni3"] ?></span><br>
                                                         </div>
                                                     </div>
                                                     <hr>
-                                                    <p> Poznámka: <?php echo $row["hodnoceni2"]["zprava"] ?></p>
+                                                    <p> Poznámka: <?php echo $row["hodnoceni"][2]["zprava"] ?></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -342,6 +357,9 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Vrati tlacitka pro navigacni menu rozsirujici
+     */
     public function getPageTopBtns()
     {
         ?>
@@ -353,12 +371,13 @@ $pageContent = new class {
 };
 
 // webova stranka
-$pageTpl->getHead("test");
+$pageTpl->getHead($tplData["title"]);
 ?>
-    <body>
+    <body class="d-flex flex-column min-vh-100">
     <?php
     // kontex stranky
-    $pageTpl->getNavbar(false, false);
+    $pageTpl->getSpecialEvent();
+    $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
     ?>
     <div class="container">
         <?php
@@ -366,13 +385,16 @@ $pageTpl->getHead("test");
         ?>
         <hr>
         <?php
-        $pageContent->getRequestedReviews($tplData["notVerifiedArticles"]);
+        $pageContent->getRequestedReviews($tplData["nonValid"]);
         ?>
         <hr>
         <?php
-        $pageContent->getMyReviews($tplData["dismissedArticles"]);
+        $pageContent->getMyReviews($tplData["valid"]);
         ?>
     </div>
+    <?php
+    $pageTpl->getFooter();
+    ?>
     </body>
 <?php
 $pageTpl->getEnd();
