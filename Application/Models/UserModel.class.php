@@ -169,6 +169,21 @@ class UserModel extends DatabaseModel
     }
 
     /**
+     * Zmeni uzivateluv ban status
+     *
+     * @param int $userID id uzivatele
+     * @param int $banStatus status banu
+     * @return bool true-> pokud se podarilo zabanovat uzivatele
+     */
+    public function changeUserBanStatus(int $userID, int $banStatus)
+    {
+        $whereStatement = "id_uzivatel={$userID}";
+        $updateStatementWithValues = "isBanned='{$banStatus}'";
+
+        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement);
+    }
+
+    /**
      * Vrati vsechny uzivatele splnujici minimalni vahu
      *
      * @param int $minWeight min vaha
@@ -179,7 +194,7 @@ class UserModel extends DatabaseModel
         //SELECT id_uzivatel, mjakubas_uzivatel.id_pravo, email, jmeno, prijmeni, nazev, vaha FROM mjakubas_uzivatel, mjakubas_pravo
         // WHERE mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo
 
-        $whatStatement = "id_uzivatel, mjakubas_uzivatel.id_pravo, email, jmeno, prijmeni, nazev, vaha";
+        $whatStatement = "id_uzivatel, mjakubas_uzivatel.id_pravo, email, jmeno, prijmeni, nazev, vaha, isBanned, heslo";
         $tableStatement = TABLE_UZIVATEL . ", " . TABLE_PRAVO;
         $whereStatement = "mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo AND vaha>={$minWeight} AND vaha<={$maxWeight}";
 
@@ -189,12 +204,13 @@ class UserModel extends DatabaseModel
     // vymaz
 
     /**
-     * Vymaze z tabulky vybraneho uzivatele
+     * "Vymaze" z tabulky vybraneho uzivatele
      *
      * @param int $id
      */
     public function deleteUser(int $id)
     {
-        $this->deleteFromTable(TABLE_UZIVATEL, "id_uzivatel={$id}");
+        $updateStatement = "email='uzivatel odstraneň', heslo='0'";
+        return $this->updateInTable(TABLE_UZIVATEL, $updateStatement, "id_uzivatel={$id}");
     }
 }

@@ -86,7 +86,7 @@ class AdminController implements IController
             return;
 
         if ($_POST["action"] == "deleteUser")
-            $this->checkIfDelete();
+            $tplData["deleteUser"] = $this->checkIfDelete();
 
         if ($_POST["action"] == "sort")
             $tplData["sort"] = $_POST["sort"];
@@ -94,13 +94,19 @@ class AdminController implements IController
         if ($_POST["action"] == "crole")
             $this->checkIfRoleChange();
 
+        if ($_POST["action"] == "banUser")
+            $tplData["ban"] = $this->checkIfBan();
+
         // 1
 
         if ($_POST["action"] == "assign")
-            $this->checkIfAssign();
+            $tplData["assign"] = $this->checkIfAssign();
 
         if ($_POST["action"] == "approve")
-            $this->checkIfApprove();
+            $tplData["approve"] = $this->checkIfApprove();
+
+        if ($_POST["action"] == "dismiss")
+            $tplData["dismiss"] = $this->checkIfDismiss();
 
     }
 
@@ -143,6 +149,63 @@ class AdminController implements IController
         return $this->userModel->changeUserRole($_POST["id"], $_POST["frole"]);
     }
 
+    /**
+     * POST request prirazeni recenzenta
+     *
+     * @return bool true-> pokud uspesne
+     */
+    private function checkIfAssign()
+    {
+        if (!(isset($_POST["rev1"]) && isset($_POST["rev2"]) && isset($_POST["rev3"]) && isset($_POST["id"])))
+            return false;
+
+        $res = $this->articleModel->createNewEmptyReview($_POST["rev1"], $_POST["id"]);
+        if (!$res)
+            return false;
+        $res = $this->articleModel->createNewEmptyReview($_POST["rev2"], $_POST["id"]);
+        if (!$res)
+            return false;
+        $res = $this->articleModel->createNewEmptyReview($_POST["rev3"], $_POST["id"]);
+        if (!$res)
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Byl clanek schvalen?
+     *
+     * @return false
+     */
+    private function checkIfApprove()
+    {
+        if (!isset($_POST["id"]))
+            return false;
+
+        return $this->articleModel->updateArticleStatus($_POST["id"], 1);
+    }
+
+    private function checkIfDismiss()
+    {
+        if (!isset($_POST["id"]))
+            return false;
+
+        return $this->articleModel->updateArticleStatus($_POST["id"], 2);
+    }
+
+    private function checkIfBan()
+    {
+        if (!isset($_POST["id"]))
+            return false;
+
+        return $this->userModel->changeUserBanStatus($_POST["id"], 1);
+    }
+
+    /**
+     * Vrati prispevky cekajici prireazeni recenze
+     *
+     * @return array prispevky cekajici na recenzenta
+     */
     private function getWaitingArticles()
     {
         $articles = $this->articleModel->getAllArticles(0);
@@ -160,6 +223,11 @@ class AdminController implements IController
         return $result;
     }
 
+    /**
+     * Vrati prispevky ktere potrebuji recenze od recenzentu
+     *
+     * @return array
+     */
     private function getNeedReviewsArticles()
     {
         $articles = $this->articleModel->getAllArticles(0);
@@ -188,6 +256,12 @@ class AdminController implements IController
         return $result;
     }
 
+    /**
+     * Vrati prispevky s renezi
+     *
+     * @param int $status status prispevky
+     * @return array
+     */
     private function getArticlesWRevs(int $status)
     {
         $articles = $this->articleModel->getAllArticles($status);
@@ -212,31 +286,5 @@ class AdminController implements IController
         }
 
         return $result;
-    }
-
-    private function checkIfAssign()
-    {
-        if (!(isset($_POST["rev1"]) && isset($_POST["rev2"]) && isset($_POST["rev3"]) && isset($_POST["id"])))
-            return false;
-
-        $res = $this->articleModel->createNewEmptyReview($_POST["rev1"], $_POST["id"]);
-        if (!$res)
-            return false;
-        $res = $this->articleModel->createNewEmptyReview($_POST["rev2"], $_POST["id"]);
-        if (!$res)
-            return false;
-        $res = $this->articleModel->createNewEmptyReview($_POST["rev3"], $_POST["id"]);
-        if (!$res)
-            return false;
-
-        return true;
-    }
-
-    private function checkIfApprove()
-    {
-        if (!isset($_POST["id"]))
-            return false;
-
-        $this->articleModel->updateArticleStatus($_POST["id"], 1);
     }
 }

@@ -141,11 +141,24 @@ class ArticleModel extends DatabaseModel
         return $this->editArticle($articleID, $heading, $abstract);
     }
 
+    /**
+     * Vrati clanek podle id
+     *
+     * @param int $id_clanek id clanku
+     * @return array clanek
+     */
     public function getArticle(int $id_clanek)
     {
         return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, "id_clanek={$id_clanek} AND " . TABLE_CLANEK . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel");
     }
 
+    /**
+     * Zmeni prvky prispevku v databazi
+     *
+     * @param int $id_clanek id clanku
+     * @param int $status status
+     * @return bool true-> zmena se podarila
+     */
     public function updateArticleStatus(int $id_clanek, int $status)
     {
         return $this->updateInTable(TABLE_CLANEK, "schvalen={$status}", "id_clanek={$id_clanek}");
@@ -153,6 +166,12 @@ class ArticleModel extends DatabaseModel
 
     // filtrovani prispevku
 
+    /**
+     * Vrati vsechny prispevky se statusem
+     *
+     * @param int $status status
+     * @return array pole prispevku
+     */
     public function getAllArticles(int $status)
     {
         //SELECT * FROM mjakubas_uzivatel, mjakubas_clanek WHERE mjakubas_clanek.schvalen=0 AND mjakubas_uzivatel.id_uzivatel=mjakubas_clanek.id_uzivatel
@@ -161,6 +180,13 @@ class ArticleModel extends DatabaseModel
         return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, $whereStatement, "");
     }
 
+    /**
+     * Vytvori novou prazdnou recenzi
+     *
+     * @param int $id_user id uzivatel
+     * @param int $id_clanek id clanek
+     * @return bool true-> pokud se vytvorila nova prazdna recenze
+     */
     public function createNewEmptyReview(int $id_user, int $id_clanek)
     {
         $insertStatement = "id_uzivatel, id_clanek, hodnoceni1, hodnoceni2, hodnoceni3, zprava";
@@ -169,6 +195,12 @@ class ArticleModel extends DatabaseModel
         return $this->insertIntoTable(TABLE_RECENZE, $insertStatement, $insertValues);
     }
 
+    /**
+     * Zepta se zda recenze prispevku je validni
+     *
+     * @param int $id_clanek id prispevek
+     * @return bool true->pokud ano
+     */
     public function existsAllValidReviews(int $id_clanek)
     {
         $review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
@@ -188,6 +220,12 @@ class ArticleModel extends DatabaseModel
 
     // recenze
 
+    /**
+     * Vrati recenze prispevku pokud existuji
+     *
+     * @param int $id_clanek id prispevku
+     * @return array recenze
+     */
     public function getArticleReviews(int $id_clanek)
     {
         //SELECT * FROM mjakubas_recenze, mjakubas_uzivatel WHERE mjakubas_recenze.id_clanek=1 AND mjakubas_uzivatel.id_uzivatel=mjakubas_recenze.id_uzivatel
@@ -198,6 +236,11 @@ class ArticleModel extends DatabaseModel
         return $this->selectFromTable($tableName, $whereStatement);
     }
 
+    /**
+     * Vrati recenze prihlaseneho uzivatele
+     *
+     * @return array
+     */
     public function getLoggedUserReviews()
     {
         // je uzivatel prihlasen?
@@ -218,6 +261,16 @@ class ArticleModel extends DatabaseModel
         );
     }
 
+    /**
+     * Zmeni recenzi
+     *
+     * @param int $rev_id id recenze
+     * @param int $fh1 hodnoceni 1
+     * @param int $fh2 hodnoceni 2
+     * @param int $fh3 hodnoceni 3
+     * @param string $zprava zprava
+     * @return bool true-> pokud se podarilo zmenit recenzi
+     */
     public function updateReview(int $rev_id, int $fh1, int $fh2, int $fh3, string $zprava)
     {
         $updateStatementWithValues = "hodnoceni1='{$fh1}', hodnoceni2='{$fh2}', hodnoceni3='{$fh3}', zprava='{$zprava}'";
@@ -280,6 +333,13 @@ class ArticleModel extends DatabaseModel
         return $this->updateInTable(TABLE_CLANEK, $updateStatementWithValues, $whereStatement);
     }
 
+    /**
+     * Vrati recenze uzivatele
+     *
+     * @param int $userID id uzivatele
+     * @param string $whereStatement kde
+     * @return array recenze
+     */
     private function getUserReviews(int $userID, string $whereStatement = "")
     {
         $userWhereStatement = TABLE_RECENZE . ".id_uzivatel='{$userID}' AND " . TABLE_UZIVATEL . ".id_uzivatel='{$userID}'";

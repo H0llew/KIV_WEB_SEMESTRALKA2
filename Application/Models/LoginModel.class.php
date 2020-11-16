@@ -111,8 +111,8 @@ class LoginModel extends DatabaseModel
     {
         $password = password_hash($password, PASSWORD_BCRYPT);
 
-        $insertStatement = "email, heslo, jmeno, prijmeni, id_pravo";
-        $insertValues = "'{$email}', '{$password}', '{$name}', '{$surname}', $role";
+        $insertStatement = "email, heslo, jmeno, prijmeni, id_pravo, isBanned";
+        $insertValues = "'{$email}', '{$password}', '{$name}', '{$surname}', $role, '0'";
 
         return $this->insertIntoTable(TABLE_UZIVATEL, $insertStatement, $insertValues);
     }
