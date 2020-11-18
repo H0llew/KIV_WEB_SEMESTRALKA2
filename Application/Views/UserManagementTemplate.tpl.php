@@ -140,28 +140,49 @@ $pageTpl->getHead($tplData["title"]);
 ?>
     <body class="d-flex flex-column min-vh-100">
     <?php
-    // kontex stranky
-    $pageTpl->getSpecialEvent();
-    $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
-    ?>
-    <div class="container">
-        <?php
-        $pageContent->getButtons($tplData["isReviewer"]);
+    if ($tplData["isLogged"]) {
         ?>
-        <hr>
         <?php
-        if (isset($tplData["updateSuc"])) {
-            if ($tplData["updateSuc"]) {
-                $pageContent->getUpdateText();
-            } else {
-                $pageContent->getUpdateTextFailed();
-            }
+        if (!$tplData["isBanned"]) {
+            ?>
+            <?php
+            // kontex stranky
+            $pageTpl->getSpecialEvent();
+            $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
+            ?>
+            <div class="container">
+                <?php
+                $pageContent->getButtons($tplData["isReviewer"]);
+                ?>
+                <hr>
+                <?php
+                if (isset($tplData["updateSuc"])) {
+                    if ($tplData["updateSuc"]) {
+                        $pageContent->getUpdateText();
+                    } else {
+                        $pageContent->getUpdateTextFailed();
+                    }
+                }
+                $pageContent->getUserData($tplData["userData"]);
+                ?>
+            </div>
+            <?php
+            $pageTpl->getFooter();
+            ?>
+            <?php
+        } else {
+            ?>
+            <div class="h4 text-center pt-5">jste zabanován</div>
+            <?php
         }
-        $pageContent->getUserData($tplData["userData"]);
         ?>
-    </div>
-    <?php
-    $pageTpl->getFooter();
+        <?php
+    } else {
+        ?>
+        <div class="h4 text-center pt-5">Pro zobrazení stránky musíte být <a href="index.php?page=login">přihlášeni</a>
+        </div>
+        <?php
+    }
     ?>
     </body>
 <?php

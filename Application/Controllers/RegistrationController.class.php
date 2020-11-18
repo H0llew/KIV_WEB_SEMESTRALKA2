@@ -81,6 +81,12 @@ class RegistrationController implements IController
             && isset($_POST["fpassword"]) && isset($_POST["fpassword2"])))
             return false;
 
+        //-
+        $_POST["femail"] = htmlspecialchars($_POST["femail"]);
+        $_POST["ff_name"] = htmlspecialchars($_POST["ff_name"]);
+        $_POST["fl_name"] = htmlspecialchars($_POST["fl_name"]);
+        //-
+
         return $this->loginModel->registerNewUser($_POST["femail"], $_POST["fpassword"], $_POST["ff_name"], $_POST["fl_name"]);
     }
 

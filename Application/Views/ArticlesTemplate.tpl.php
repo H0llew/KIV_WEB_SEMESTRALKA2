@@ -23,12 +23,16 @@ $pageContent = new class {
     {
         ?>
         <article>
-            <div class="card">
+            <div class="card border-0">
                 <div class="card-body">
-                    <p>
-                        Příspěvky týkající se financí a bankovnictví volně dostupné pro všechny.
-                        Pokud chete publikovat příspěvěk je potřeba se zaregistrovat.
-                    </p>
+                    <div class="custom-text-secondary text-center">
+                        <p class="h5">
+                            Zde najdete volně dostupné příspěvky týkající se financí a bankovnictví.
+                        </p>
+                        <p>
+                            Pokud chcete publikovat příspěvek je potřeba být registrován.
+                        </p>
+                    </div>
                 </div>
             </div>
         </article>
@@ -54,7 +58,7 @@ $pageContent = new class {
                                 <th>Název</th>
                                 <th>Autor</th>
                                 <th>Datum vložení</th>
-                                <th></th>
+                                <th>Hodnocení</th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -68,13 +72,23 @@ $pageContent = new class {
                                     <td><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?></td>
                                     <td><?php echo $row["datum"] ?></td>
                                     <td>
+                                        <?php
+                                        $hod = $row["hodnoceni"];
+                                        $hod1 = $hod[0];
+                                        $hod2 = $hod[1];
+                                        $hod3 = $hod[2];
+                                        $rev = round(((($hod1["hodnoceni1"] + $hod1["hodnoceni2"] + $hod1["hodnoceni3"]) / 3)
+                                                + (($hod2["hodnoceni1"] + $hod2["hodnoceni2"] + $hod2["hodnoceni3"]) / 3)
+                                                + (($hod1["hodnoceni3"] + $hod3["hodnoceni2"] + $hod3["hodnoceni3"]) / 3)) / 3, 2);
+                                        echo $rev;
+                                        ?>
+                                    </td>
+                                    <td>
                                         <button type="button" class="btn btn-primary custom-btn-secondary"
                                                 data-toggle="modal"
                                                 data-target="#textArticleRevsA<?php echo $count ?>">
-                                            Hodnocení
+                                            Podrobné hodnocení
                                         </button>
-                                    </td>
-                                    <td>
                                         <button type="button" class="btn btn-primary custom-btn-secondary"
                                                 data-toggle="modal"
                                                 data-target="#textArticleA<?php echo $count ?>">
@@ -92,19 +106,26 @@ $pageContent = new class {
                                             <div class="modal-body">
                                                 <!-- forma -->
                                                 <div>
-                                                    <p><span>Název: </span><?php echo $row["nazev"] ?></p>
-                                                </div>
-                                                <div class="form-text custom-text-secondary">
                                                     <p>
-                                                        <span>Autor: </span><?php echo $row["prijmeni"] . " " . $row["jmeno"] ?>
+                                                        <span class="custom-text-secondary">Název: </span><?php echo $row["nazev"] ?>
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <p><span>Datum nahrání: </span><?php echo $row["datum"] ?>
+                                                    <div>
+                                                        <p>
+                                                            <span class="custom-text-secondary">Autor:</span> <?php echo $row["prijmeni"] . " " . $row["jmeno"] ?>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p>
+                                                        <span class="custom-text-secondary">Datum nahrání: </span><?php echo $row["datum"] ?>
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <p><span>Abstrakt: </span><?php echo $row["abstrakt"] ?></p>
+                                                    <p>
+                                                        <span class="custom-text-secondary">Abstrakt:<br></span><?php echo $row["abstrakt"] ?>
+                                                    </p>
                                                 </div>
                                                 <div class="form-group">
                                                     <input type="hidden" id="ffilePathWaiting" name="ffilePath"
@@ -136,47 +157,67 @@ $pageContent = new class {
                                             <div class="modal-body">
                                                 <div class="card">
                                                     <div class="card-body">
-                                                        <span>Hodnocení: <?php echo $row["hodnoceni"][0]["prijmeni"] . $row["hodnoceni"][0]["jmeno"] ?></span><br>
+                                                        <span class="custom-text-secondary">Hodnocení:</span>
+                                                        <span> <?php echo $row["hodnoceni"][0]["prijmeni"] . " " . $row["hodnoceni"][0]["jmeno"] ?></span><br>
                                                         <hr>
                                                         <div class="py-2">
                                                             <div class="">
-                                                                <span>Téma: <?php echo $row["hodnoceni"][0]["hodnoceni1"] ?></span><br>
-                                                                <span>Technická kvalita: <?php echo $row["hodnoceni"][0]["hodnoceni2"] ?></span><br>
-                                                                <span>Jazyková kvalita: <?php echo $row["hodnoceni"][0]["hodnoceni3"] ?></span><br>
+                                                                <div><span class="custom-text-secondary">Téma:</span>
+                                                                    <?php
+                                                                    echo $row["hodnoceni"][0]["hodnoceni1"]
+                                                                    ?></div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni2"] ?></span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni3"] ?></span><br>
                                                             </div>
                                                         </div>
                                                         <hr>
-                                                        <p> Poznámka: <?php echo $row["hodnoceni"][0]["zprava"] ?></p>
+                                                        <p>
+                                                            <span class="custom-text-secondary">Poznámka:</span> <?php echo $row["hodnoceni"][0]["zprava"] ?>
+                                                        </p>
                                                     </div>
                                                 </div>
+                                                <hr>
                                                 <div class="card">
                                                     <div class="card-body">
-                                                        <span>Hodnocení: <?php echo $row["hodnoceni"][1]["prijmeni"] . $row["hodnoceni"][1]["jmeno"] ?></span><br>
+                                                        <span class="custom-text-secondary">Hodnocení:</span>
+                                                        <span> <?php echo $row["hodnoceni"][1]["prijmeni"] . " " . $row["hodnoceni"][1]["jmeno"] ?></span><br>
                                                         <hr>
                                                         <div class="py-2">
                                                             <div class="">
-                                                                <span>Téma: <?php echo $row["hodnoceni"][1]["hodnoceni1"] ?></span><br>
-                                                                <span>Technická kvalita: <?php echo $row["hodnoceni"][1]["hodnoceni2"] ?></span><br>
-                                                                <span>Jazyková kvalita: <?php echo $row["hodnoceni"][1]["hodnoceni3"] ?></span><br>
+                                                                <div><span class="custom-text-secondary">Téma:</span>
+                                                                    <?php
+                                                                    echo $row["hodnoceni"][1]["hodnoceni1"]
+                                                                    ?></div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni2"] ?></span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni3"] ?></span><br>
                                                             </div>
                                                         </div>
                                                         <hr>
-                                                        <p> Poznámka: <?php echo $row["hodnoceni"][1]["zprava"] ?></p>
+                                                        <p>
+                                                            <span class="custom-text-secondary">Poznámka:</span> <?php echo $row["hodnoceni"][1]["zprava"] ?>
+                                                        </p>
                                                     </div>
                                                 </div>
+                                                <hr>
                                                 <div class="card">
                                                     <div class="card-body">
-                                                        <span>Hodnocení: <?php echo $row["hodnoceni"][2]["prijmeni"] . $row["hodnoceni"][2]["jmeno"] ?></span><br>
+                                                        <span class="custom-text-secondary">Hodnocení:</span>
+                                                        <span> <?php echo $row["hodnoceni"][2]["prijmeni"] . " " . $row["hodnoceni"][2]["jmeno"] ?></span><br>
                                                         <hr>
                                                         <div class="py-2">
                                                             <div class="">
-                                                                <span>Téma: <?php echo $row["hodnoceni"][2]["hodnoceni1"] ?></span><br>
-                                                                <span>Technická kvalita: <?php echo $row["hodnoceni"][2]["hodnoceni2"] ?></span><br>
-                                                                <span>Jazyková kvalita: <?php echo $row["hodnoceni"][2]["hodnoceni3"] ?></span><br>
+                                                                <div><span class="custom-text-secondary">Téma:</span>
+                                                                    <?php
+                                                                    echo $row["hodnoceni"][2]["hodnoceni1"]
+                                                                    ?></div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni2"] ?></span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni3"] ?></span><br>
                                                             </div>
                                                         </div>
                                                         <hr>
-                                                        <p> Poznámka: <?php echo $row["hodnoceni"][2]["zprava"] ?></p>
+                                                        <p>
+                                                            <span class="custom-text-secondary">Poznámka:</span> <?php echo $row["hodnoceni"][2]["zprava"] ?>
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>

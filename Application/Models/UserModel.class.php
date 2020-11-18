@@ -93,6 +93,14 @@ class UserModel extends DatabaseModel
         return $res[0][0];
     }
 
+    public function isUserBanned()
+    {
+        $user = $this->getLoggedUserData();
+        if ($user["isBanned"] == 1)
+            return true;
+        return false;
+    }
+
     // data uzivatele
 
     /**

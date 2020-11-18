@@ -164,6 +164,21 @@ class ArticleModel extends DatabaseModel
         return $this->updateInTable(TABLE_CLANEK, "schvalen={$status}", "id_clanek={$id_clanek}");
     }
 
+    /**
+     * Vymaze prispevek z db
+     *
+     * @param int $id_clanek id prispevku
+     * @return bool true->pokuid se podarilo prispevek vymatat
+     */
+    public function deleteArticle(int $id_clanek)
+    {
+        $revs = $this->getArticleReviews($id_clanek);
+        if (!empty($revs))
+            return false;
+
+        return $this->deleteFromTable(TABLE_CLANEK, "id_clanek={$id_clanek}");
+    }
+
     // filtrovani prispevku
 
     /**

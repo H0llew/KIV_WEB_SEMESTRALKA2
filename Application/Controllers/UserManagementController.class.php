@@ -31,13 +31,16 @@ class UserManagementController implements IController
         $tplData["title"] = $pageTitle;
 
         $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
-        $tplData["isAdmin"] = $this->userModel->isUserAdmin();
-        $tplData["isReviewer"] = $this->userModel->isUserReviewer();
+        if ($tplData["isLogged"]) {
+            $tplData["isBanned"] = $this->userModel->isUserBanned();
 
-        $this->checkPOST();
+            $tplData["isAdmin"] = $this->userModel->isUserAdmin();
+            $tplData["isReviewer"] = $this->userModel->isUserReviewer();
 
-        $tplData["userData"] = $this->userModel->getLoggedUserData();
+            $this->checkPOST();
 
+            $tplData["userData"] = $this->userModel->getLoggedUserData();
+        }
         ob_start();
         require(DIR_VIEWS . "/UserManagementTemplate.tpl.php");
         return ob_get_clean();
@@ -67,6 +70,11 @@ class UserManagementController implements IController
         if (!(isset($_POST["femail"]) && isset($_POST["fname"]) && isset($_POST["flname"]) && isset($_POST["fpassword"])))
             return false;
 
+        //-
+        $_POST["femail"] = htmlspecialchars($_POST["femail"]);
+        $_POST["fname"] = htmlspecialchars($_POST["fname"]);
+        $_POST["flname"] = htmlspecialchars($_POST["fpassword"]);
+        //-
 
         if (!password_verify($_POST["fpassword"], $this->userModel->getLoggedUserData()["heslo"]))
             return false;

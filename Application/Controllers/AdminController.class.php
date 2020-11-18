@@ -32,32 +32,35 @@ class AdminController implements IController
         global $tplData;
         $tplData = [];
 
-        $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
-        $tplData["isAdmin"] = $this->userModel->isUserAdmin();
-
         $tplData["title"] = $pageTitle;
 
-        $this->checkPOST();
+        $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
+        $tplData["isAdmin"] = $this->userModel->isUserAdmin();
+        if ($tplData["isAdmin"]) {
+            $tplData["isBanned"] = $this->userModel->isUserBanned();
 
-        $tplData["page"] = $this->checkPage();
-        if ($tplData["page"] == 0) {
-            $tplData["userWeight"] = $this->userModel->getUserRoleWeight();
-            if (!isset($tplData["sort"]))
-                $tplData["sort"] = "vaha";
-            $tplData["users"] = $this->userModel->getAllUsers(0, $tplData["sort"]);
-            $tplData["itemsPerPage"] = 1;
-            $tplData["pages"] = count($tplData["users"]) % $tplData["itemsPerPage"];
+
+            $this->checkPOST();
+
+            $tplData["page"] = $this->checkPage();
+            if ($tplData["page"] == 0) {
+                $tplData["userWeight"] = $this->userModel->getUserRoleWeight();
+                if (!isset($tplData["sort"]))
+                    $tplData["sort"] = "vaha";
+                $tplData["users"] = $this->userModel->getAllUsers(0, $tplData["sort"]);
+                $tplData["itemsPerPage"] = 1;
+                $tplData["pages"] = count($tplData["users"]) % $tplData["itemsPerPage"];
+            }
+            if ($tplData["page"] == 1) {
+
+                $tplData["waiting"] = $this->getWaitingArticles();
+                $tplData["reviewers"] = $this->userModel->getAllUsers(5, "", 5);
+
+                $tplData["needReview"] = $this->getNeedReviewsArticles();
+                $tplData["approved"] = $this->getArticlesWRevs(1);
+                $tplData["notApproved"] = $this->getArticlesWRevs(2);
+            }
         }
-        if ($tplData["page"] == 1) {
-
-            $tplData["waiting"] = $this->getWaitingArticles();
-            $tplData["reviewers"] = $this->userModel->getAllUsers(5, "", 5);
-
-            $tplData["needReview"] = $this->getNeedReviewsArticles();
-            $tplData["approved"] = $this->getArticlesWRevs(1);
-            $tplData["notApproved"] = $this->getArticlesWRevs(2);
-        }
-
         ob_start();
         require(DIR_VIEWS . "/AdminTemplate.tpl.php");
         return ob_get_clean();
@@ -92,7 +95,7 @@ class AdminController implements IController
             $tplData["sort"] = $_POST["sort"];
 
         if ($_POST["action"] == "crole")
-            $this->checkIfRoleChange();
+            $tplData["roleChange"] = $this->checkIfRoleChange();
 
         if ($_POST["action"] == "banUser")
             $tplData["ban"] = $this->checkIfBan();

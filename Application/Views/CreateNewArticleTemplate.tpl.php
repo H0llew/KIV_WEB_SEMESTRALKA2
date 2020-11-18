@@ -164,26 +164,47 @@ $pageTpl->getHead($tplData["title"]);
 ?>
     <body class="d-flex flex-column min-vh-100">
     <?php
-    // kontex stranky
-    $pageTpl->getSpecialEvent();
-    $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
-    ?>
-    <div class="container">
+    if ($tplData["isLogged"]) {
+        ?>
         <?php
-        if (!isset($tplData["successfulUpload"])) {
-            $pageContent->getNewArticleSection($tplData["userFullName"]);
+        if (!$tplData["isBanned"]) {
+            ?>
+            <?php
+            // kontex stranky
+            $pageTpl->getSpecialEvent();
+            $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
+            ?>
+            <div class="container">
+                <?php
+                if (!isset($tplData["successfulUpload"])) {
+                    $pageContent->getNewArticleSection($tplData["userFullName"]);
+                } else {
+                    if ($tplData["successfulUpload"]) {
+                        $pageContent->showSuccessfulUpload();
+                    } else {
+                        $pageContent->showUploadFailed();
+                        $pageContent->getNewArticleSection($tplData["userFullName"]);
+                    }
+                }
+                ?>
+            </div>
+            <?php
+            $pageTpl->getFooter();
+            ?>
+            <?php
         } else {
-            if ($tplData["successfulUpload"]) {
-                $pageContent->showSuccessfulUpload();
-            } else {
-                $pageContent->showUploadFailed();
-                $pageContent->getNewArticleSection($tplData["userFullName"]);
-            }
+            ?>
+            <div class="h4 text-center pt-5">jste zabanován</div>
+            <?php
         }
         ?>
-    </div>
-    <?php
-    $pageTpl->getFooter();
+        <?php
+    } else {
+        ?>
+        <div class="h4 text-center pt-5">Pro zobrazení stránky musíte být <a href="index.php?page=login">přihlášeni</a>
+        </div>
+        <?php
+    }
     ?>
     </body>
 <?php

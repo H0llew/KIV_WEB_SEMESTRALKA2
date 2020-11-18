@@ -1129,6 +1129,9 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Vrati zda byl uzivatel uspesne zabanovan
+     */
     public function getBanSuccessful()
     {
         ?>
@@ -1138,6 +1141,9 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Vrati zda byl uzivatel neuspesne zabanovan
+     */
     public function getBanFailed()
     {
         ?>
@@ -1147,6 +1153,9 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Vrati zda byl uzivatel uspesne smazan
+     */
     public function getUserDeletedSuccesful()
     {
         ?>
@@ -1156,11 +1165,38 @@ $pageContent = new class {
         <?php
     }
 
+    /**
+     * Vrati zda nebyl uzivatel uspesne smazan
+     */
     public function getUserDeletedFailed()
     {
         ?>
         <div class="alert alert-danger text-center">
             <strong>Uživatele nešlo smazat!</strong> Prosím zkuste to později.
+        </div>
+        <?php
+    }
+
+    /**
+     * Vrati zda zbyla uspesne zmenena role uzivatele
+     */
+    public function getRoleChangeFailed()
+    {
+        ?>
+        <div class="alert alert-danger text-center">
+            <strong>Nepodařilo se změnit roli uživatele!</strong> Prosím zkuste to později.
+        </div>
+        <?php
+    }
+
+    /**
+     * Vrati zda zbyla neuspesna zmenena role uzivatele
+     */
+    public function getRoleChangeSuccessful()
+    {
+        ?>
+        <div class="alert alert-success text-center">
+            <strong>Uživatelova role změněna!</strong>
         </div>
         <?php
     }
@@ -1171,64 +1207,91 @@ $pageTpl->getHead($tplData["title"]);
 ?>
     <body class="d-flex flex-column min-vh-100">
     <?php
-    // kontex stranky
-    $pageTpl->getSpecialEvent();
-    $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
-    ?>
-    <div class="container">
-        <?php
-        $pageContent->switchPages($tplData["page"]);
+    if ($tplData["isAdmin"]) {
         ?>
-        <hr>
         <?php
-        switch ($tplData["page"]) {
-            case 0:
-                if (isset($tplData["ban"])) {
-                    if ($tplData["ban"])
-                        $pageContent->getBanSuccessful();
-                    else
-                        $pageContent->getBanFailed();
+        if (!$tplData["isBanned"]) {
+            ?>
+            <?php
+            // kontex stranky
+            $pageTpl->getSpecialEvent();
+            $pageTpl->getNavbar($tplData["isLogged"], $tplData["isAdmin"]);
+            ?>
+            <div class="container">
+                <?php
+                $pageContent->switchPages($tplData["page"]);
+                ?>
+                <hr>
+                <?php
+                switch ($tplData["page"]) {
+                    case 0:
+                        if (isset($tplData["ban"])) {
+                            if ($tplData["ban"])
+                                $pageContent->getBanSuccessful();
+                            else
+                                $pageContent->getBanFailed();
+                        }
+                        if (isset($tplData["deleteUser"])) {
+                            if ($tplData["deleteUser"])
+                                $pageContent->getUserDeletedSuccesful();
+                            else
+                                $pageContent->getUserDeletedFailed();
+                        }
+                        if (isset($tplData["roleChange"])) {
+                            if ($tplData["roleChange"])
+                                $pageContent->getRoleChangeSuccessful();
+                            else
+                                $pageContent->getRoleChangeFailed();
+                        }
+                        $pageContent->getUserManagement($tplData["users"], $tplData["userWeight"]);
+                        break;
+                    case 1:
+                        if (isset($tplData["assign"])) {
+                            if ($tplData["assign"])
+                                $pageContent->getAssignSuccessful();
+                            else
+                                $pageContent->getAssignFailed();
+                        }
+                        $pageContent->getWaitingArticles($tplData["waiting"], $tplData["reviewers"]);
+                        echo "<hr>";
+                        if (isset($tplData["approve"])) {
+                            if ($tplData["approve"])
+                                $pageContent->getApproveSuccessful();
+                            else
+                                $pageContent->getApproveFailed();
+                        }
+                        if (isset($tplData["dismiss"])) {
+                            if ($tplData["dismiss"])
+                                $pageContent->getDismissSuccessful();
+                            else
+                                $pageContent->getDismissFailed();
+                        }
+                        $pageContent->getNeedReviewsArticles($tplData["needReview"]);
+                        echo "<hr>";
+                        $pageContent->getAssignedAndApproved($tplData["approved"]);
+                        echo "<hr>";
+                        $pageContent->getDismissed($tplData["notApproved"]);
+                        break;
                 }
-                if (isset($tplData["deleteUser"])) {
-                    if ($tplData["deleteUser"])
-                        $pageContent->getUserDeletedSuccesful();
-                    else
-                        $pageContent->getUserDeletedFailed();
-                }
-                $pageContent->getUserManagement($tplData["users"], $tplData["userWeight"]);
-                break;
-            case 1:
-                if (isset($tplData["assign"])) {
-                    if ($tplData["assign"])
-                        $pageContent->getAssignSuccessful();
-                    else
-                        $pageContent->getAssignFailed();
-                }
-                $pageContent->getWaitingArticles($tplData["waiting"], $tplData["reviewers"]);
-                echo "<hr>";
-                if (isset($tplData["approve"])) {
-                    if ($tplData["approve"])
-                        $pageContent->getApproveSuccessful();
-                    else
-                        $pageContent->getApproveFailed();
-                }
-                if (isset($tplData["dismiss"])) {
-                    if ($tplData["dismiss"])
-                        $pageContent->getDismissSuccessful();
-                    else
-                        $pageContent->getDismissFailed();
-                }
-                $pageContent->getNeedReviewsArticles($tplData["needReview"]);
-                echo "<hr>";
-                $pageContent->getAssignedAndApproved($tplData["approved"]);
-                echo "<hr>";
-                $pageContent->getDismissed($tplData["notApproved"]);
-                break;
+                ?>
+            </div>
+            <?php
+            $pageTpl->getFooter();
+            ?>
+            <?php
+        } else {
+            ?>
+            <div class="h4 text-center pt-5">jste zabanován</div>
+            <?php
         }
         ?>
-    </div>
-    <?php
-    $pageTpl->getFooter();
+        <?php
+    } else {
+        ?>
+        <div class="h4 text-center pt-5">Pro zobrazení stránky musíte být adminem.
+        </div>
+        <?php
+    }
     ?>
     </body>
 <?php

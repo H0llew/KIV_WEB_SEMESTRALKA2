@@ -35,12 +35,14 @@ class CreateNewArticleController implements IController
         $tplData["title"] = $pageTitle;
 
         $tplData["isLogged"] = $this->userModel->isUserLoggedIn();
-        $tplData["isAdmin"] = $this->userModel->isUserAdmin();
-        //$tplData["successfulUpload"] = true;
+        if ($tplData["isLogged"]) {
+            $tplData["isBanned"] = $this->userModel->isUserBanned();
+            $tplData["isAdmin"] = $this->userModel->isUserAdmin();
+            //$tplData["successfulUpload"] = true;
 
-        $tplData["userFullName"] = $this->getUserFullName($this->userModel->getLoggedUserData());
-        $this->checkPOST();
-
+            $tplData["userFullName"] = $this->getUserFullName($this->userModel->getLoggedUserData());
+            $this->checkPOST();
+        }
         ob_start();
         require(DIR_VIEWS . "/CreateNewArticleTemplate.tpl.php");
         return ob_get_clean();
@@ -70,8 +72,12 @@ class CreateNewArticleController implements IController
         if (!(isset($_POST["fabstract"]) && isset($_POST["fheading"])))
             return false;
 
+        //-
+        $_POST["fabstract"] = htmlspecialchars($_POST["fabstract"]);
+        $_POST["fheading"] = htmlspecialchars($_POST["fheading"]);
+        //-
+
         $res = $this->userModel->getUserID();
-        echo $res;
         if ($res == -1)
             return false;
 
