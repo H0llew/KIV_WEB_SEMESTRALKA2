@@ -72,11 +72,18 @@ class ArticleModel extends DatabaseModel
             return [];
 
         // schvalene clanky
-        $approvedUserArticles = $this->getUserArticles($userID, "schvalen = 1");
+        //$approvedUserArticles = $this->getUserArticles($userID, "schvalen = 1");
         // neschvalene clanky
-        $waitingForApprovalArticles = $this->getUserArticles($userID, "schvalen = 0");
+        //$waitingForApprovalArticles = $this->getUserArticles($userID, "schvalen = 0");
         // zamitnute clanky
-        $dismissedArticles = $this->getUserArticles($userID, "schvalen = 2");
+        //$dismissedArticles = $this->getUserArticles($userID, "schvalen = 2");
+
+        // schvalene clanky
+        $approvedUserArticles = $this->getUserArticles($userID, array(1), "schvalen=?");
+        // neschvalene clanky
+        $waitingForApprovalArticles = $this->getUserArticles($userID, array(0), "schvalen=?");
+        // zamitnute clanky
+        $dismissedArticles = $this->getUserArticles($userID, array(2), "schvalen=?");
 
         return array(
             "approved" => $approvedUserArticles,
@@ -93,7 +100,8 @@ class ArticleModel extends DatabaseModel
      */
     public function existArticleReview(int $id_clanek)
     {
-        $review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
+        //$review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
+        $review = $this->selectFromTable(TABLE_RECENZE, array($id_clanek), "id_clanek=?");
         if (empty($review))
             return false;
         return true;
@@ -107,7 +115,8 @@ class ArticleModel extends DatabaseModel
      */
     public function exist3ArticleReview(int $id_clanek)
     {
-        $review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
+        //$review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
+        $review = $this->selectFromTable(TABLE_RECENZE, array($id_clanek), "id_clanek=?");
         if (empty($review))
             return false;
         if (count($review) < 3)
@@ -134,8 +143,11 @@ class ArticleModel extends DatabaseModel
         if ($userID == -1)
             return false;
 
-        $whereStatement = "datum='{$date}' AND soubor='{$filePath}'";
-        $articleID = $this->getUserArticles($userID, $whereStatement)[0]["id_clanek"];
+        //$whereStatement = "datum='{$date}' AND soubor='{$filePath}'";
+        //$articleID = $this->getUserArticles($userID, $whereStatement)[0]["id_clanek"];
+
+        $whereStatement = "datum=? AND soubor=?";
+        $articleID = $this->getUserArticles($userID, array($date, $filePath), $whereStatement)[0]["id_clanek"];
 
         // jen 1 vrati VZDY
         return $this->editArticle($articleID, $heading, $abstract);
@@ -149,7 +161,8 @@ class ArticleModel extends DatabaseModel
      */
     public function getArticle(int $id_clanek)
     {
-        return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, "id_clanek={$id_clanek} AND " . TABLE_CLANEK . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel");
+        //return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, "id_clanek={$id_clanek} AND " . TABLE_CLANEK . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel");
+        return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, array($id_clanek), "id_clanek=? AND " . TABLE_CLANEK . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel");
     }
 
     /**
@@ -161,7 +174,8 @@ class ArticleModel extends DatabaseModel
      */
     public function updateArticleStatus(int $id_clanek, int $status)
     {
-        return $this->updateInTable(TABLE_CLANEK, "schvalen={$status}", "id_clanek={$id_clanek}");
+        //return $this->updateInTable(TABLE_CLANEK, "schvalen={$status}", "id_clanek={$id_clanek}");
+        return $this->updateInTable(TABLE_CLANEK, "schvalen=?", "id_clanek=?", array($status, $id_clanek));
     }
 
     /**
@@ -176,7 +190,8 @@ class ArticleModel extends DatabaseModel
         if (!empty($revs))
             return false;
 
-        return $this->deleteFromTable(TABLE_CLANEK, "id_clanek={$id_clanek}");
+        //return $this->deleteFromTable(TABLE_CLANEK, "id_clanek={$id_clanek}");
+        return $this->deleteFromTable(TABLE_CLANEK, array($id_clanek), "id_clanek=?");
     }
 
     // filtrovani prispevku
@@ -191,8 +206,9 @@ class ArticleModel extends DatabaseModel
     {
         //SELECT * FROM mjakubas_uzivatel, mjakubas_clanek WHERE mjakubas_clanek.schvalen=0 AND mjakubas_uzivatel.id_uzivatel=mjakubas_clanek.id_uzivatel
 
-        $whereStatement = "schvalen={$status} AND " . TABLE_CLANEK . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel";
-        return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, $whereStatement, "");
+        //$whereStatement = "schvalen={$status} AND " . TABLE_CLANEK . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel";
+        $whereStatement = "schvalen=? AND " . TABLE_CLANEK . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel";
+        return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, array($status), $whereStatement, "");
     }
 
     /**
@@ -204,10 +220,13 @@ class ArticleModel extends DatabaseModel
      */
     public function createNewEmptyReview(int $id_user, int $id_clanek)
     {
-        $insertStatement = "id_uzivatel, id_clanek, hodnoceni1, hodnoceni2, hodnoceni3, zprava";
-        $insertValues = "{$id_user}, '{$id_clanek}', '-1', '-1', '-1', '-1'";
+        //$insertStatement = "id_uzivatel, id_clanek, hodnoceni1, hodnoceni2, hodnoceni3, zprava";
+        //$insertValues = "{$id_user}, '{$id_clanek}', '-1', '-1', '-1', '-1'";
 
-        return $this->insertIntoTable(TABLE_RECENZE, $insertStatement, $insertValues);
+        $insertStatement = "id_uzivatel, id_clanek, hodnoceni1, hodnoceni2, hodnoceni3, zprava";
+        $insertValues = "?, ?, ?, ?, ?, ?";
+
+        return $this->insertIntoTable(TABLE_RECENZE, $insertStatement, array($id_user, $id_clanek, -1, -1, -1, -1), $insertValues);
     }
 
     /**
@@ -218,7 +237,8 @@ class ArticleModel extends DatabaseModel
      */
     public function existsAllValidReviews(int $id_clanek)
     {
-        $review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
+        //$review = $this->selectFromTable(TABLE_RECENZE, "id_clanek={$id_clanek}");
+        $review = $this->selectFromTable(TABLE_RECENZE, array($id_clanek), "id_clanek=?");
         if (empty($review))
             return false;
         if (count($review) < 3)
@@ -246,9 +266,10 @@ class ArticleModel extends DatabaseModel
         //SELECT * FROM mjakubas_recenze, mjakubas_uzivatel WHERE mjakubas_recenze.id_clanek=1 AND mjakubas_uzivatel.id_uzivatel=mjakubas_recenze.id_uzivatel
 
         $tableName = TABLE_RECENZE . ", " . TABLE_UZIVATEL;
-        $whereStatement = TABLE_RECENZE . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel AND " . "id_clanek={$id_clanek}";
+        //$whereStatement = TABLE_RECENZE . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel AND " . "id_clanek={$id_clanek}";
+        $whereStatement = TABLE_RECENZE . ".id_uzivatel=" . TABLE_UZIVATEL . ".id_uzivatel AND " . "id_clanek=?";
 
-        return $this->selectFromTable($tableName, $whereStatement);
+        return $this->selectFromTable($tableName, array($id_clanek), $whereStatement);
     }
 
     /**
@@ -267,8 +288,11 @@ class ArticleModel extends DatabaseModel
         if ($userID == -1)
             return [];
 
-        $nonValid = $this->getUserReviews($userID, "(hodnoceni1 = -1 OR hodnoceni2 = -1 OR hodnoceni3 = -1 OR zprava = '-1')");
-        $valid = $this->getUserReviews($userID, "(hodnoceni1 <> -1 AND hodnoceni2 <> -1 AND hodnoceni3 <> -1 AND zprava <> '-1')");
+        //$nonValid = $this->getUserReviews($userID, "(hodnoceni1 = -1 OR hodnoceni2 = -1 OR hodnoceni3 = -1 OR zprava = '-1')");
+        //$valid = $this->getUserReviews($userID, "(hodnoceni1 <> -1 AND hodnoceni2 <> -1 AND hodnoceni3 <> -1 AND zprava <> '-1')");
+
+        $nonValid = $this->getUserReviews($userID, array(-1, -1, -1, -1), "(hodnoceni1=? OR hodnoceni2=? OR hodnoceni3=? OR zprava=?)");
+        $valid = $this->getUserReviews($userID, array(-1, -1, -1, -1), "(hodnoceni1 <> ? AND hodnoceni2 <> ? AND hodnoceni3 <> ? AND zprava <> ?)");
 
         return array(
             "nonValid" => $nonValid,
@@ -288,10 +312,13 @@ class ArticleModel extends DatabaseModel
      */
     public function updateReview(int $rev_id, int $fh1, int $fh2, int $fh3, string $zprava)
     {
-        $updateStatementWithValues = "hodnoceni1='{$fh1}', hodnoceni2='{$fh2}', hodnoceni3='{$fh3}', zprava='{$zprava}'";
-        $whereStatement = "id_recenze='{$rev_id}'";
+        //$updateStatementWithValues = "hodnoceni1='{$fh1}', hodnoceni2='{$fh2}', hodnoceni3='{$fh3}', zprava='{$zprava}'";
+        //$whereStatement = "id_recenze='{$rev_id}'";
 
-        return $this->updateInTable(TABLE_RECENZE, $updateStatementWithValues, $whereStatement);
+        $updateStatementWithValues = "hodnoceni1=?, hodnoceni2=?, hodnoceni3=?, zprava=?";
+        $whereStatement = "id_recenze=?";
+
+        return $this->updateInTable(TABLE_RECENZE, $updateStatementWithValues, $whereStatement, array($fh1, $fh2, $fh3, $zprava, $rev_id));
     }
 
     // private
@@ -309,10 +336,13 @@ class ArticleModel extends DatabaseModel
      */
     private function addNewArticle(int $userID, string $filePath, string $heading, string $abstract, string $date): bool
     {
-        $insertStatement = "id_uzivatel, soubor, nazev, abstrakt, datum, schvalen";
-        $insertValues = "{$userID}, '{$filePath}', '{$heading}', '{$abstract}', '{$date}', 0";
+        //$insertStatement = "id_uzivatel, soubor, nazev, abstrakt, datum, schvalen";
+        //$insertValues = "{$userID}, '{$filePath}', '{$heading}', '{$abstract}', '{$date}', 0";
 
-        return $this->insertIntoTable(TABLE_CLANEK, $insertStatement, $insertValues);
+        $insertStatement = "id_uzivatel, soubor, nazev, abstrakt, datum, schvalen";
+        $insertValues = "?, ?, ?, ?, ?, ?";
+
+        return $this->insertIntoTable(TABLE_CLANEK, $insertStatement, array($userID, $filePath, $heading, $abstract, $date, 0), $insertValues);
     }
 
     /**
@@ -323,13 +353,27 @@ class ArticleModel extends DatabaseModel
      * @param string $orderByStatement serazeni podle
      * @return array neprazdne pole pokud byly nalezen clakny jinak prazdne pole
      */
-    private function getUserArticles(int $userID, string $whereStatement = "", string $orderByStatement = ""): array
+    private function getUserArticles(int $userID, array $values, string $whereStatement = "", string $orderByStatement = ""): array
     {
+        /*
         $userWhereStatement = TABLE_CLANEK . ".id_uzivatel='{$userID}' AND " . TABLE_UZIVATEL . ".id_uzivatel='{$userID}'";
         if ($whereStatement != "")
             $userWhereStatement .= " and " . $whereStatement;
 
         return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, $userWhereStatement, $orderByStatement);
+        */
+
+        $userWhereStatement = TABLE_CLANEK . ".id_uzivatel=? AND " . TABLE_UZIVATEL . ".id_uzivatel=?";
+        $whereValues = array($userID, $userID);
+        if ($whereStatement != "")
+            $userWhereStatement .= " and " . $whereStatement;
+
+        //array_push($whereValues, $values);
+        foreach ($values as $value) {
+            array_push($whereValues, $value);
+        }
+
+        return $this->selectFromTable(TABLE_CLANEK . ", " . TABLE_UZIVATEL, $whereValues, $userWhereStatement, $orderByStatement);
     }
 
     /**
@@ -342,10 +386,13 @@ class ArticleModel extends DatabaseModel
      */
     private function editArticle(int $articleID, string $heading, string $abstract)
     {
-        $updateStatementWithValues = "abstrakt='{$abstract}', nazev='{$heading}'";
-        $whereStatement = "id_clanek='{$articleID}'";
+        //$updateStatementWithValues = "abstrakt='{$abstract}', nazev='{$heading}'";
+        //$whereStatement = "id_clanek='{$articleID}'";
 
-        return $this->updateInTable(TABLE_CLANEK, $updateStatementWithValues, $whereStatement);
+        $updateStatementWithValues = "abstrakt=?, nazev=?";
+        $whereStatement = "id_clanek=?";
+
+        return $this->updateInTable(TABLE_CLANEK, $updateStatementWithValues, $whereStatement, array($abstract, $heading, $articleID));
     }
 
     /**
@@ -355,12 +402,26 @@ class ArticleModel extends DatabaseModel
      * @param string $whereStatement kde
      * @return array recenze
      */
-    private function getUserReviews(int $userID, string $whereStatement = "")
+    private function getUserReviews(int $userID, array $values, string $whereStatement = "")
     {
+        /*
         $userWhereStatement = TABLE_RECENZE . ".id_uzivatel='{$userID}' AND " . TABLE_UZIVATEL . ".id_uzivatel='{$userID}'";
         if ($whereStatement != "")
             $userWhereStatement .= " AND " . $whereStatement;
 
         return $this->selectFromTable(TABLE_RECENZE . ", " . TABLE_UZIVATEL, $userWhereStatement);
+        */
+
+        $userWhereStatement = TABLE_RECENZE . ".id_uzivatel=? AND " . TABLE_UZIVATEL . ".id_uzivatel=?";
+        $whereValues = array($userID, $userID);
+        if ($whereStatement != "")
+            $userWhereStatement .= " AND " . $whereStatement;
+
+        //array_push($whereValues, $values);
+        foreach ($values as $value) {
+            array_push($whereValues, $value);
+        }
+
+        return $this->selectFromTable(TABLE_RECENZE . ", " . TABLE_UZIVATEL, $whereValues, $userWhereStatement);
     }
 }

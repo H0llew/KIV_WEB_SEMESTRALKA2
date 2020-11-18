@@ -87,9 +87,10 @@ class UserModel extends DatabaseModel
             return -1;
         $whatStatement = "vaha";
         $tableStatement = TABLE_UZIVATEL . ", " . TABLE_PRAVO;
-        $whereStatement = TABLE_UZIVATEL . ".id_uzivatel={$userID} AND " . TABLE_UZIVATEL . ".id_pravo=" . TABLE_PRAVO . ".id_pravo";
+        //$whereStatement = TABLE_UZIVATEL . ".id_uzivatel={$userID} AND " . TABLE_UZIVATEL . ".id_pravo=" . TABLE_PRAVO . ".id_pravo";
+        $whereStatement = TABLE_UZIVATEL . ".id_uzivatel=? AND " . TABLE_UZIVATEL . ".id_pravo=" . TABLE_PRAVO . ".id_pravo";
 
-        $res = $this->selectFromTable($tableStatement, $whereStatement, "", $whatStatement);
+        $res = $this->selectFromTable($tableStatement, array($userID), $whereStatement, "", $whatStatement);
         return $res[0][0];
     }
 
@@ -119,16 +120,18 @@ class UserModel extends DatabaseModel
             return [];
         }
 
-        $whereStatement = "id_uzivatel='{$user_id}'";
-        $userData = $this->selectFromTable(TABLE_UZIVATEL, $whereStatement);
+        //$whereStatement = "id_uzivatel='{$user_id}'";
+        $whereStatement = "id_uzivatel=?";
+        $userData = $this->selectFromTable(TABLE_UZIVATEL, array($user_id), $whereStatement);
         if (empty($userData))
             return [];
 
         $whatStatement = "nazev";
         $tableStatement = TABLE_UZIVATEL . ", " . TABLE_PRAVO;
-        $whereStatement = TABLE_UZIVATEL . ".id_uzivatel={$user_id} AND " . TABLE_PRAVO . ".id_pravo={$userData[0]["id_pravo"]}";
+        //$whereStatement = TABLE_UZIVATEL . ".id_uzivatel={$user_id} AND " . TABLE_PRAVO . ".id_pravo={$userData[0]["id_pravo"]}";
+        $whereStatement = TABLE_UZIVATEL . ".id_uzivatel=? AND " . TABLE_PRAVO . ".id_pravo=?";
 
-        $res = $this->selectFromTable($tableStatement, $whereStatement, "", $whatStatement);
+        $res = $this->selectFromTable($tableStatement, array($user_id, $userData[0]["id_pravo"]), $whereStatement, "", $whatStatement);
 
         $userData[0]["role"] = $res[0][0];
         return $userData[0];
@@ -155,10 +158,13 @@ class UserModel extends DatabaseModel
 
         $heslo = password_hash($heslo, PASSWORD_DEFAULT);
 
-        $whereStatement = "id_uzivatel={$userID}";
-        $updateStatementWithValues = "email='{$email}', jmeno='{$jmeno}', prijmeni='{$prijmeni}', heslo='{$heslo}'";
+        //$whereStatement = "id_uzivatel={$userID}";
+        //$updateStatementWithValues = "email='{$email}', jmeno='{$jmeno}', prijmeni='{$prijmeni}', heslo='{$heslo}'";
 
-        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement);
+        $whereStatement = "id_uzivatel=?";
+        $updateStatementWithValues = "email=?, jmeno=?, prijmeni=?, heslo=?";
+
+        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement, array($email, $jmeno, $prijmeni, $heslo, $userID));
     }
 
     /**
@@ -170,10 +176,13 @@ class UserModel extends DatabaseModel
      */
     public function changeUserRole(int $userID, int $newRole)
     {
-        $whereStatement = "id_uzivatel={$userID}";
-        $updateStatementWithValues = "id_pravo='{$newRole}'";
+        //$whereStatement = "id_uzivatel={$userID}";
+        //$updateStatementWithValues = "id_pravo='{$newRole}'";
 
-        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement);
+        $whereStatement = "id_uzivatel=?";
+        $updateStatementWithValues = "id_pravo=?";
+
+        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement, array($newRole, $userID));
     }
 
     /**
@@ -185,10 +194,13 @@ class UserModel extends DatabaseModel
      */
     public function changeUserBanStatus(int $userID, int $banStatus)
     {
-        $whereStatement = "id_uzivatel={$userID}";
-        $updateStatementWithValues = "isBanned='{$banStatus}'";
+        //$whereStatement = "id_uzivatel={$userID}";
+        //$updateStatementWithValues = "isBanned='{$banStatus}'";
 
-        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement);
+        $whereStatement = "id_uzivatel=?";
+        $updateStatementWithValues = "isBanned=?";
+
+        return $this->updateInTable(TABLE_UZIVATEL, $updateStatementWithValues, $whereStatement, array($banStatus, $userID));
     }
 
     /**
@@ -204,9 +216,10 @@ class UserModel extends DatabaseModel
 
         $whatStatement = "id_uzivatel, mjakubas_uzivatel.id_pravo, email, jmeno, prijmeni, nazev, vaha, isBanned, heslo";
         $tableStatement = TABLE_UZIVATEL . ", " . TABLE_PRAVO;
-        $whereStatement = "mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo AND vaha>={$minWeight} AND vaha<={$maxWeight}";
+        //$whereStatement = "mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo AND vaha>={$minWeight} AND vaha<={$maxWeight}";
+        $whereStatement = "mjakubas_uzivatel.id_pravo=mjakubas_pravo.id_pravo AND vaha>=? AND vaha<=?";
 
-        return $this->selectFromTable($tableStatement, $whereStatement, $sortBy, $whatStatement);
+        return $this->selectFromTable($tableStatement, array($minWeight, $maxWeight), $whereStatement, $sortBy, $whatStatement);
     }
 
     // vymaz
@@ -218,7 +231,25 @@ class UserModel extends DatabaseModel
      */
     public function deleteUser(int $id)
     {
-        $updateStatement = "email='uzivatel odstraneň', heslo='0'";
-        return $this->updateInTable(TABLE_UZIVATEL, $updateStatement, "id_uzivatel={$id}");
+        //$updateStatement = "email='uzivatel odstraneň', heslo='0'";
+        //return $this->updateInTable(TABLE_UZIVATEL, $updateStatement, "id_uzivatel={$id}");
+
+        $updateStatement = "email=?, heslo=?";
+        return $this->updateInTable(TABLE_UZIVATEL, $updateStatement, "id_uzivatel=?", array("uživatel odstraněn", 0, $id));
     }
+
+    //test
+
+    /*
+    public function testNewUser()
+    {
+        $insertStatement = "email, heslo, jmeno, prijmeni, id_pravo, isBanned";
+        $insertValues = "?, ?, ?, ?, ?, ?";
+
+        $wuuut = array("testMail", "testHeslo", "TestJmeno", "TestPrijmeni", 1, 0);
+        print_r($wuuut);
+
+        return $this->insertIntoTable(TABLE_UZIVATEL, $insertStatement, $wuuut, $insertValues);
+    }
+    */
 }

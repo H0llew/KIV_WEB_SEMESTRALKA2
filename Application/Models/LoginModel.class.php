@@ -43,8 +43,9 @@ class LoginModel extends DatabaseModel
      */
     public function loginUser(string $email, string $password): bool
     {
-        $whereStatement = "email='{$email}'";
-        $user = $this->selectFromTable(TABLE_UZIVATEL, $whereStatement);
+        //$whereStatement = "email='{$email}'";
+        $whereStatement = "email=?";
+        $user = $this->selectFromTable(TABLE_UZIVATEL, array($email), $whereStatement);
 
         if (empty($user))
             return false;
@@ -74,8 +75,9 @@ class LoginModel extends DatabaseModel
      */
     public function emailExists(string $email): bool
     {
-        $whereStatement = "email='{$email}'";
-        $res = $this->selectFromTable(TABLE_UZIVATEL, $whereStatement);
+        //$whereStatement = "email='{$email}'";
+        $whereStatement = "email=?";
+        $res = $this->selectFromTable(TABLE_UZIVATEL, array($email), $whereStatement);
 
         if (empty($res))
             return false;
@@ -111,9 +113,12 @@ class LoginModel extends DatabaseModel
     {
         $password = password_hash($password, PASSWORD_BCRYPT);
 
-        $insertStatement = "email, heslo, jmeno, prijmeni, id_pravo, isBanned";
-        $insertValues = "'{$email}', '{$password}', '{$name}', '{$surname}', $role, '0'";
+        //$insertStatement = "email, heslo, jmeno, prijmeni, id_pravo, isBanned";
+        //$insertValues = "'{$email}', '{$password}', '{$name}', '{$surname}', $role, '0'";
 
-        return $this->insertIntoTable(TABLE_UZIVATEL, $insertStatement, $insertValues);
+        $insertStatement = "email, heslo, jmeno, prijmeni, id_pravo, isBanned";
+        $insertValues = "?, ?, ?, ?, ?, ?";
+
+        return $this->insertIntoTable(TABLE_UZIVATEL, $insertStatement, array($email, $password, $name, $surname, $role, 0), $insertValues);
     }
 }
