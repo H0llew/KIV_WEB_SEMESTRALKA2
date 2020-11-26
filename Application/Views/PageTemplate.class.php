@@ -167,7 +167,7 @@ class PageTemplate
         <div class="jumbotron jumbotron-fluid py-2" style="background-color: black;margin-bottom: 0">
             <div class="container-fluid d-flex justify-content-center">
                 <!-- text -->
-                <a href="#">
+                <a href="index.php?page=terms">
                     <div class="row border border-warning">
                         <div class="col-sm-4 text-warning px-0 mx-0" style="text-align: center">
                             <h3>COVID-19<br>INFO</h3>

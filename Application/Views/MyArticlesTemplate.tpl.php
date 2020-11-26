@@ -310,10 +310,10 @@ $pageContent = new class {
                                                                 <div><span class="custom-text-secondary">Téma:</span>
                                                                     <?php
                                                                     echo $row["hodnoceni"][0]["hodnoceni1"]
-                                                                    ?></div>
-                                                                <br>
-                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni2"] ?></span><br>
-                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni3"] ?></span><br>
+                                                                    ?>/5
+                                                                </div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni2"] ?>/5</span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni3"] ?>/5</span><br>
                                                             </div>
                                                         </div>
                                                         <hr>
@@ -333,10 +333,10 @@ $pageContent = new class {
                                                                 <div><span class="custom-text-secondary">Téma:</span>
                                                                     <?php
                                                                     echo $row["hodnoceni"][1]["hodnoceni1"]
-                                                                    ?></div>
-                                                                <br>
-                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni2"] ?></span><br>
-                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni3"] ?></span><br>
+                                                                    ?>/5
+                                                                </div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni2"] ?>/5</span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni3"] ?>/5</span><br>
                                                             </div>
                                                         </div>
                                                         <hr>
@@ -356,10 +356,10 @@ $pageContent = new class {
                                                                 <div><span class="custom-text-secondary">Téma:</span>
                                                                     <?php
                                                                     echo $row["hodnoceni"][2]["hodnoceni1"]
-                                                                    ?></div>
-                                                                <br>
-                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni2"] ?></span><br>
-                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni3"] ?></span><br>
+                                                                    ?>/5
+                                                                </div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni2"] ?>/5</span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni3"] ?>/5</span><br>
                                                             </div>
                                                         </div>
                                                         <hr>
@@ -514,10 +514,10 @@ $pageContent = new class {
                                                                 <div><span class="custom-text-secondary">Téma:</span>
                                                                     <?php
                                                                     echo $row["hodnoceni"][0]["hodnoceni1"]
-                                                                    ?></div>
-                                                                <br>
-                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni2"] ?></span><br>
-                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni3"] ?></span><br>
+                                                                    ?>/5
+                                                                </div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni2"] ?>/5</span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][0]["hodnoceni3"] ?>/5</span><br>
                                                             </div>
                                                         </div>
                                                         <hr>
@@ -537,10 +537,10 @@ $pageContent = new class {
                                                                 <div><span class="custom-text-secondary">Téma:</span>
                                                                     <?php
                                                                     echo $row["hodnoceni"][1]["hodnoceni1"]
-                                                                    ?></div>
-                                                                <br>
-                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni2"] ?></span><br>
-                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni3"] ?></span><br>
+                                                                    ?>/5
+                                                                </div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni2"] ?>/5</span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][1]["hodnoceni3"] ?>/5</span><br>
                                                             </div>
                                                         </div>
                                                         <hr>
@@ -560,10 +560,10 @@ $pageContent = new class {
                                                                 <div><span class="custom-text-secondary">Téma:</span>
                                                                     <?php
                                                                     echo $row["hodnoceni"][2]["hodnoceni1"]
-                                                                    ?></div>
-                                                                <br>
-                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni2"] ?></span><br>
-                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni3"] ?></span><br>
+                                                                    ?>/5
+                                                                </div>
+                                                                <span><span class="custom-text-secondary">Technická kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni2"] ?>/5</span><br>
+                                                                <span><span class="custom-text-secondary">Jazyková kvalita:</span> <?php echo $row["hodnoceni"][2]["hodnoceni3"] ?>/5</span><br>
                                                             </div>
                                                         </div>
                                                         <hr>

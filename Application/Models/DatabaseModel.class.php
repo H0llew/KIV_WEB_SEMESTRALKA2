@@ -93,6 +93,7 @@ class DatabaseModel
      * Vymaze radky z prislusne tabulky
      *
      * @param string $tableName nazev tabulky
+     * @param array $values hodnoty
      * @param string $whereStatement kde
      * @return bool true pokud se podarilo vymazat radky
      */
@@ -163,7 +164,7 @@ class DatabaseModel
     protected function updateInTable(string $tableName, string $updateStatementWithValues, string $whereStatement, array $values): bool
     {
         $q = "UPDATE {$tableName} SET {$updateStatementWithValues} WHERE {$whereStatement}";
-        
+
         $query = $this->pdo->prepare($q);
         if (!$query->execute($values)) {
             return false;

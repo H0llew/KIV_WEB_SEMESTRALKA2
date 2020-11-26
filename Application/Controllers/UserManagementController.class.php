@@ -73,7 +73,7 @@ class UserManagementController implements IController
         //-
         $_POST["femail"] = htmlspecialchars($_POST["femail"]);
         $_POST["fname"] = htmlspecialchars($_POST["fname"]);
-        $_POST["flname"] = htmlspecialchars($_POST["fpassword"]);
+        $_POST["flname"] = htmlspecialchars($_POST["flname"]);
         //-
 
         if (!password_verify($_POST["fpassword"], $this->userModel->getLoggedUserData()["heslo"]))

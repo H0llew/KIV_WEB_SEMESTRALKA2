@@ -39,7 +39,6 @@ class AdminController implements IController
         if ($tplData["isAdmin"]) {
             $tplData["isBanned"] = $this->userModel->isUserBanned();
 
-
             $this->checkPOST();
 
             $tplData["page"] = $this->checkPage();

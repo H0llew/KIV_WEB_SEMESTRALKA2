@@ -128,9 +128,9 @@ class MyReviewsController implements IController
         if (!(isset($_POST["fh1"]) && isset($_POST["fh2"]) && isset($_POST["fh3"]) && isset($_POST["fabstract"]) && isset($_POST["id"])))
             return false;
 
-        $_POST["fh1"] = intval($_POST["fh1"]) + floatval($_POST["fh1"]);
-        $_POST["fh2"] = intval($_POST["fh2"]) + floatval($_POST["fh2"]);
-        $_POST["fh3"] = intval($_POST["fh3"]) + floatval($_POST["fh3"]);
+        $_POST["fh1"] = intval($_POST["fh1"]) + 0;
+        $_POST["fh2"] = intval($_POST["fh2"]) + 0;
+        $_POST["fh3"] = intval($_POST["fh3"]) + 0;
         $_POST["fabstract"] = htmlspecialchars($_POST["fabstract"]);
 
         return $this->articleModel->updateReview($_POST["id"], $_POST["fh1"], $_POST["fh2"], $_POST["fh3"], $_POST["fabstract"]);
